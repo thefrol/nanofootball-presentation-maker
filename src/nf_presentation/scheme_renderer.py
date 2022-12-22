@@ -1,6 +1,10 @@
-from cairosvg import svg2png,svg2svg
-from .settings import svg_replacements,png_render_width,png_render_height
 import re
+from io import BytesIO
+
+from cairosvg import svg2png,svg2svg
+
+from .settings import svg_replacements,png_render_width,png_render_height
+
 
 class SchemeRenderer:
     """a class for rendering scheme to png
@@ -50,6 +54,11 @@ class SchemeRenderer:
             output_height=self.height,
             write_to=to_file
             )
+
+    def to_stream(self,svg_text) -> BytesIO:
+        stream=BytesIO()
+        self.render_png(svg_text=svg_text,to_file=stream)
+        return stream
     
 
 

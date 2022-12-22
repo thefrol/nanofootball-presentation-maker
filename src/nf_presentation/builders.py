@@ -1,3 +1,5 @@
+"""All sizes and lenghts are in centimeters (will be transformed to  pptx.util.Cm class)"""
+
 from abc import abstractmethod
 
 from pptx import Presentation
@@ -11,7 +13,26 @@ TITLE_ONLY_LAYOUT=5
 
 class ElementBuilder:
     def __init__(self):
-        pass
+        self.position=(1,1)
+
+    @property
+    def left(self):
+        left,_ =self.position
+        return left
+
+    @property
+    def top(self):
+        _,top=self.position
+        return top
+
+    def set_position(self,left,top):
+        self.position=left,top
+        return self
+
+    def at(self, position):
+        self.position=position
+        return self
+
     @abstractmethod
     def _build(self, slide: Slide):
         pass
@@ -33,24 +54,26 @@ class RowTableBuilder(ElementBuilder):
         self.width=width
         self.row_height=row_height
         self.position=position
-        
 
-    @property
-    def left(self):
-        left,_ =self.position
-        return left
-    @property
-    def top(self):
-        _,top=self.position
-        return top
 
- 
+
+    def with_row_height(self, row_height):
+        self.row_height=row_height
+    
+    def with_width(self, width):
+        self.width=width
+        return self
 
     def append_row(self, *data:list[str]):
         self.rows.append(tuple(data))
+        return self
+
+    def append_empty_row(self):
+        return self.append_row()
 
     def extend_rows(self, rows_array:list[tuple]):
         self.rows.extend(rows_array)
+        return self
 
     @property
     def cols_count(self):
@@ -84,6 +107,37 @@ class RowTableBuilder(ElementBuilder):
                 #TODO if isinstance(cell_text,HTMLCell)
                 table.cell(row_number,column_number).text=str(cell_text)
 
+class ImageBuilder(ElementBuilder):
+    """a class for adding images to a slide,
+    automaticly scales for height or width
+    so can use set_size(width,None) to scale image to width and same for height(leave width None)"""
+    def __init__(self, image, position : tuple[float,float] = (1.,1.), size=None):
+        self.image=image
+        self.position=position
+        self.size=size
+
+    def set_size(self,width,height):
+        self.size=width,height
+        return self
+
+    @property
+    def width(self):
+        width,height=self.size
+        return width
+    @property
+    def height(self):
+        width,height=self.size
+        return height
+
+    def _build(self, slide: Slide):
+        slide.shapes.add_picture(
+            image_file=self.image,
+            left= Cm(self.left),
+            top= Cm(self.top),
+            width=Cm(self.width) if self.width else None,
+            height=Cm(self.height) if self.height else None)
+    
+
 
 class SlideBuilder(Builder):
     """A builder for slides
@@ -96,11 +150,21 @@ class SlideBuilder(Builder):
     def __init__(self,title=''):
         self.title=title
         self.shape_builders:list[ElementBuilder]=[]
+
     def set_title(self, title:str):
         self.title=title
         return self
+
     def add_element(self,builder:ElementBuilder):
         self.shape_builders.append(builder)
+        return builder
+
+    def create_table(self) -> RowTableBuilder:
+        return self.add_element(RowTableBuilder())
+
+    def create_image(self,image_file:str) -> ImageBuilder:
+        return self.add_element(ImageBuilder(image=image_file))
+
     def _build(self,presentation:Presentation):
         title_only_slide_layout=presentation.slide_layouts[TITLE_ONLY_LAYOUT]
         slide= presentation.slides.add_slide(title_only_slide_layout)
@@ -118,7 +182,13 @@ class PresentationBuilder:
         self.slide_builders:list[Builder]=[]
 
     def add_slide(self, slide_builder:SlideBuilder):
+        """DEPRECATED"""
         self.slide_builders.append(slide_builder)
+
+    def create_slide(self,title=''):
+        slide_builder=SlideBuilder(title=title)
+        self.slide_builders.append(slide_builder)
+        return slide_builder
 
     def build(self) -> Presentation:
         presentation : Presentation =Presentation()
