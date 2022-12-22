@@ -34,7 +34,9 @@ class SchemeRenderer:
         return svg_text
     
     def render_png(self,svg_text:str, to_file:str):
-        """A function rendering scheme to png, output file can be path string or file object"""
+        """A function rendering scheme to png, 
+        svg_text: a str containing svg image
+        to_file: output file can be path string or file object"""
         # step 0. get original svg
         final_svg=svg_text
         # step 1. fix links

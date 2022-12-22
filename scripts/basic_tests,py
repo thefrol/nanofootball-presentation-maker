@@ -1,6 +1,6 @@
 import re
 
-from cairosvg import svg2png
+from cairosvg import svg2png,svg2svg
 
 from nanofoot import ExercisesService,ExerciseInfo, Api
 
@@ -66,6 +66,7 @@ svg_text=fix_svg(svg_text)
 #renderPM.drawToFile(svg,'sc1.png',fmt='PNG')
 
 svg2png(bytestring=svg_text,write_to='output.png')
+svg2svg(bytestring=svg_text,write_to='output.svg')
 
 
 
