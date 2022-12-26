@@ -9,6 +9,7 @@ from .settings import (
                 BASIC_TABLE_POSITION, BASIC_TABLE_WIDTH,
                 LINKS_TABLE_POSTION,LINKS_TABLE_WIDTH,
                 SCHEME_HEIGHT,SCHEME_WIDTH, SCHEME_POSITION,
+                TITLE_POSITION,TITLE_SIZE
                 
                 )
 
@@ -23,7 +24,9 @@ class ReportRenderer:
         self._open_streams:list[IO]=[]
     def add_exercise_slide(self,exercise_data:dict):
         exercise=ExerciseInfo(raw_data=exercise_data)
-        slide=self.presentation_builder.create_slide(title=DEFAULT_SLIDE_TITLE)
+        slide=self.presentation_builder.create_slide()
+
+        slide.create_title(DEFAULT_SLIDE_TITLE).at(TITLE_POSITION).with_size(TITLE_SIZE)
 
         basic_info_table=slide.create_table().at(BASIC_TABLE_POSITION).with_width(BASIC_TABLE_WIDTH)
         basic_info_table.append_row(exercise.title)

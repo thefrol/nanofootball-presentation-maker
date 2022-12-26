@@ -12,9 +12,11 @@ from pptx.util import Cm, Inches,Emu
 from .settings import (DEFAULT_TABLE_WIDTH,
                        DEFAULT_TABLE_ROW_HEIGHT,
                        DEFAULT_TABLE_HORZ_BANDING,
-                       DEFAULT_TABLE_MARK_FIRST_ROW)
+                       DEFAULT_TABLE_MARK_FIRST_ROW,
+                       )
 
 TITLE_ONLY_LAYOUT=5
+BLANK_LAYOUT=6
 
 class ElementBuilder:
     def __init__(self):
@@ -42,10 +44,54 @@ class ElementBuilder:
     def _build(self, slide: Slide):
         pass
 
+class BoxElementBuilder(ElementBuilder):
+    def __init__(self):
+        super.__init__()
+        self.size=(1,1)
+    
+    def with_size(self, size:tuple[float,float]):
+        self.size=size
+
+    @property
+    def width(self):
+        width,height=self.size
+        return width
+
+    @property
+    def height(self):
+        width,height=self.size
+        return height
+    
+    
+
+
+
+
+
 class Builder:
     @abstractmethod
     def _build(self, injection):
         pass
+
+class TextBuilder(BoxElementBuilder):
+    def __init__(self, text:str):
+        self.text=text
+    def _build(self, slide: Slide):
+        textbox=slide.shapes.add_textbox(
+            left=Cm(self.left),
+            top=Cm(self.top),
+            width=Cm(self.width),
+            height=Cm(self.height))
+        textbox.text_frame.text=self.text
+        return textbox
+
+class TitleBuilder(TextBuilder):
+    def _build(self, slide: Slide):
+        textbox=super()._build(slide)
+        slide.title=textbox
+        
+
+        
 
 class RowTableBuilder(ElementBuilder):
     """a class building a table from rows,
@@ -154,8 +200,7 @@ class SlideBuilder(Builder):
     table_builder=TableBuilder()
     ...
     add_element(table_builder)"""
-    def __init__(self,title=''):
-        self.title=title
+    def __init__(self):
         self.shape_builders:list[ElementBuilder]=[]
 
     def set_title(self, title:str):
@@ -171,13 +216,13 @@ class SlideBuilder(Builder):
 
     def create_image(self,image_file:str) -> ImageBuilder:
         return self.add_element(ImageBuilder(image=image_file))
+    
+    def create_title(self, text:str) -> TitleBuilder:
+        return self.add_element(TitleBuilder(text=text))
 
     def _build(self,presentation:Presentation):
-        title_only_slide_layout=presentation.slide_layouts[TITLE_ONLY_LAYOUT]
-        slide= presentation.slides.add_slide(title_only_slide_layout)
-
-        shapes=slide.shapes
-        shapes.title.text=self.title
+        blank_slide_layout=presentation.slide_layouts[BLANK_LAYOUT]
+        slide= presentation.slides.add_slide(blank_slide_layout)
 
         for builder in self.shape_builders:
             builder._build(slide)
@@ -230,8 +275,8 @@ class PresentationBuilder:
         """DEPRECATED"""
         self.slide_builders.append(slide_builder)
 
-    def create_slide(self,title=''):
-        slide_builder=SlideBuilder(title=title)
+    def create_slide(self):
+        slide_builder=SlideBuilder()
         self.slide_builders.append(slide_builder)
         return slide_builder
 
