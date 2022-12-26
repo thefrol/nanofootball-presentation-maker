@@ -8,6 +8,9 @@ from pptx import Presentation
 from pptx.slide import Slide
 from pptx.table import Table
 from pptx.util import Cm, Inches,Emu
+from pptx.enum.dml import MSO_THEME_COLOR
+from pptx.enum.text import PP_ALIGN
+from pptx.dml.color import RGBColor
 
 from .settings import (DEFAULT_TABLE_WIDTH,
                        DEFAULT_TABLE_ROW_HEIGHT,
@@ -46,11 +49,12 @@ class ElementBuilder:
 
 class BoxElementBuilder(ElementBuilder):
     def __init__(self):
-        super.__init__()
+        super().__init__()
         self.size=(1,1)
     
     def with_size(self, size:tuple[float,float]):
         self.size=size
+        return self
 
     @property
     def width(self):
@@ -61,11 +65,49 @@ class BoxElementBuilder(ElementBuilder):
     def height(self):
         width,height=self.size
         return height
-    
-    
+
+class ColoredBoxBuilder(BoxElementBuilder):
+    def __init__(self):
+        super().__init__()
+        self.background_color=None 
+        self.foreground_color=None
+
+    def with_foreground(self, rgb:tuple[int,int,int]):
+        if rgb:
+            r,g,b=rgb
+            self.foreground_color=RGBColor(r,g,b)
+        else:
+            self.foreground_color=None
+        return self
+
+    def with_background(self, rgb:str):
+        if rgb:
+            r,g,b=rgb
+            self.background_color=RGBColor(r,g,b)
+        else:
+            self.background_color=None
+        return self
 
 
+class ThemeColoredBoxBuilder(BoxElementBuilder):
+    def __init__(self):
+        super().__init__()
+        self.background_color=None 
+        self.foreground_color=None
 
+    def with_foreground(self, color:str):
+        if color:
+            self.foreground_color=MSO_THEME_COLOR.from_xml(color)
+        else:
+            self.foreground_color=None
+        return self
+
+    def with_background(self, color:str):
+        if color:
+            self.background_color=MSO_THEME_COLOR.from_xml(color)
+        else:
+            self.background_color=None
+        return self
 
 
 class Builder:
@@ -73,19 +115,47 @@ class Builder:
     def _build(self, injection):
         pass
 
-class TextBuilder(BoxElementBuilder):
-    def __init__(self, text:str):
+class TextAlign:
+    Center=PP_ALIGN.CENTER
+
+
+class TextBuilder(ColoredBoxBuilder):
+    def __init__(self, text:str,autosize=None, align=None):
+        super().__init__()
         self.text=text
+        self.text_align=align
+        self.autosize=autosize
     def _build(self, slide: Slide):
         textbox=slide.shapes.add_textbox(
             left=Cm(self.left),
             top=Cm(self.top),
             width=Cm(self.width),
             height=Cm(self.height))
-        textbox.text_frame.text=self.text
+
+        text_frame=textbox.text_frame
+        text_frame.auto_size=self.autosize
+        text_frame.text=self.text
+
+        p=text_frame.paragraphs[0]
+        p.alignment=self.text_align
+
+        font=p.font
+            # font.name = 'Calibri'
+            # font.size = Pt(18)
+            # font.bold = True
+        if self.foreground_color:
+            font.color.rgb = self.foreground_color
+
+        if self.background_color:
+            textbox.fill.solid()
+            textbox.fill.fore_color.rgb=self.background_color
+
         return textbox
 
+
 class TitleBuilder(TextBuilder):
+    def __init__(self, text: str):
+        super().__init__(text, autosize=None,align=TextAlign.Center)
     def _build(self, slide: Slide):
         textbox=super()._build(slide)
         slide.title=textbox
