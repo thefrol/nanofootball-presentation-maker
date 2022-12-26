@@ -185,8 +185,8 @@ class PresentationRatio:
         alias:str
 
 class Ratios:
-    _16x9=PresentationRatio(width=Emu(9144000),height=Emu(5143500),alias='16:9')
-    _4x3=PresentationRatio(width=Emu(9144000),height=Emu(6858000),alias='4:3')
+    _16x9=PresentationRatio(width=Emu(12192000),height=Emu(6858000),alias='16:9')
+    _4x3=PresentationRatio(width=Emu(9144000),height=Emu(6858000),alias='4:3') # the old broken one
 
     
     @classmethod
