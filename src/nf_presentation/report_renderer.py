@@ -1,3 +1,5 @@
+from typing import IO
+
 from .builders import PresentationBuilder
 from .exercise_info import ExerciseInfo
 from .scheme_renderer import SchemeRenderer
@@ -10,8 +12,14 @@ from .settings import (
                 )
 
 class ReportRenderer:
+    """A class rendering a report in pptx
+    requires closing after work, or use 'with' expression
+    
+    with ReportRenderer() as rr:
+        ..."""
     def __init__(self):
         self.presentation_builder=PresentationBuilder()
+        self._open_streams:list[IO]=[]
     def add_exercise_slide(self,exercise_data:dict):
         exercise=ExerciseInfo(raw_data=exercise_data)
         slide=self.presentation_builder.create_slide(title=DEFAULT_SLIDE_TITLE)
@@ -34,6 +42,7 @@ class ReportRenderer:
         #creating a scheme
         s=SchemeRenderer()
         image_stream=s.to_stream(exercise.schemes[0])
+        self._open_streams.append(image_stream)
         slide.create_image(image_stream).at(SCHEME_POSITION).set_size(SCHEME_WIDTH,None)
 
 
@@ -42,3 +51,12 @@ class ReportRenderer:
         pass
     def save(self,to:str):
         self.presentation_builder.save(to)
+
+    def __enter__(self):
+        return self
+    def __exit__(self,type,value,traceback):
+        self.close()
+    def close(self):
+        for stream in self._open_streams:
+            stream.close()
+
