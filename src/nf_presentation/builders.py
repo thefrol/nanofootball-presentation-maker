@@ -105,6 +105,7 @@ class RowTableBuilder(ElementBuilder):
         table.first_row=False  # disable coloring fist row
 
         for (row_number,row_text_list) in enumerate(self.rows):
+            table.rows[row_number].height=Cm(self.row_height)
             for (column_number, cell_text) in enumerate(row_text_list):
                 #TODO if isinstance(cell_text,HTMLCell)
                 table.cell(row_number,column_number).text=str(cell_text)
