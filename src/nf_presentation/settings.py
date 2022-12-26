@@ -2,6 +2,9 @@
 # Output formatting
 #
 
+#presentation
+PRESENTATION_RATIO='16:9'
+
 # left side
 SCHEME_POSITION=(0.4,3.5)
 SCHEME_HEIGHT=8.5 # not used atm

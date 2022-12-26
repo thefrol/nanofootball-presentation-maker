@@ -4,11 +4,12 @@ from .builders import PresentationBuilder
 from .exercise_info import ExerciseInfo
 from .scheme_renderer import SchemeRenderer
 from .settings import (
+                DEFAULT_SLIDE_TITLE,PRESENTATION_RATIO,
                 ADDITIONAL_TABLE_POSITION, ADDITIONAL_TABLE_WIDTH,
                 BASIC_TABLE_POSITION, BASIC_TABLE_WIDTH,
                 LINKS_TABLE_POSTION,LINKS_TABLE_WIDTH,
                 SCHEME_HEIGHT,SCHEME_WIDTH, SCHEME_POSITION,
-                DEFAULT_SLIDE_TITLE
+                
                 )
 
 class ReportRenderer:
@@ -18,7 +19,7 @@ class ReportRenderer:
     with ReportRenderer() as rr:
         ..."""
     def __init__(self):
-        self.presentation_builder=PresentationBuilder()
+        self.presentation_builder=PresentationBuilder().with_ratio(PRESENTATION_RATIO)
         self._open_streams:list[IO]=[]
     def add_exercise_slide(self,exercise_data:dict):
         exercise=ExerciseInfo(raw_data=exercise_data)
@@ -52,7 +53,7 @@ class ReportRenderer:
     def save(self,to:str):
         self.presentation_builder.save(to)
 
-    def __enter__(self):
+    def __enter__(self) -> 'ReportRenderer':
         return self
     def __exit__(self,type,value,traceback):
         self.close()

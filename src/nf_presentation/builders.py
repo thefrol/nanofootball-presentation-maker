@@ -1,11 +1,13 @@
 """All sizes and lenghts are in centimeters (will be transformed to  pptx.util.Cm class)"""
 
 from abc import abstractmethod
+from dataclasses import dataclass
+from typing import Union,Iterable,Iterator
 
 from pptx import Presentation
 from pptx.slide import Slide
 from pptx.table import Table
-from pptx.util import Cm
+from pptx.util import Cm, Inches,Emu
 
 from .settings import DEFAULT_TABLE_WIDTH,DEFAULT_TABLE_ROW_HEIGHT
 
@@ -175,11 +177,49 @@ class SlideBuilder(Builder):
         for builder in self.shape_builders:
             builder._build(slide)
 
-        
+@dataclass
+class PresentationRatio:
+        width:Emu
+        height:Emu
+        alias:str
+
+class Ratios:
+    _16x9=PresentationRatio(width=Emu(9144000),height=Emu(5143500),alias='16:9')
+    _4x3=PresentationRatio(width=Emu(9144000),height=Emu(6858000),alias='4:3')
+
+    
+    @classmethod
+    def list(cls) -> Iterator[PresentationRatio]:
+        """returns all ratios as iter"""
+        ratios=[]
+        for key in cls.__dict__:
+            item:PresentationRatio=getattr(cls,key)
+            if isinstance(item,PresentationRatio):
+                ratios.append(item)
+        return iter(ratios)
+
+
+    @classmethod
+    def get_by_alias(cls,alias:str):
+        for ratio in cls.list():
+            if ratio.alias==alias:
+                return ratio
+        raise AttributeError(f'Ratio {alias} not found')
+
+
+
     
 class PresentationBuilder:
-    def __init__(self):
+    def __init__(self, ratio : Union[str, PresentationRatio] = Ratios._16x9):
         self.slide_builders:list[Builder]=[]
+        self.with_ratio(ratio)
+
+    def with_ratio(self, ratio = Union[str, PresentationRatio]):
+        if isinstance(ratio,str):
+            self.ratio=Ratios.get_by_alias(ratio)
+        else:
+            self.ratio=ratio
+        return self
 
     def add_slide(self, slide_builder:SlideBuilder):
         """DEPRECATED"""
@@ -192,6 +232,8 @@ class PresentationBuilder:
 
     def build(self) -> Presentation:
         presentation : Presentation =Presentation()
+        presentation.slide_width=self.ratio.width
+        presentation.slide_height=self.ratio.height
         for slide_builder in self.slide_builders:
             slide_builder._build(presentation)
         return presentation
