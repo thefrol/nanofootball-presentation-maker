@@ -9,7 +9,10 @@ from pptx.slide import Slide
 from pptx.table import Table
 from pptx.util import Cm, Inches,Emu
 
-from .settings import DEFAULT_TABLE_WIDTH,DEFAULT_TABLE_ROW_HEIGHT
+from .settings import (DEFAULT_TABLE_WIDTH,
+                       DEFAULT_TABLE_ROW_HEIGHT,
+                       DEFAULT_TABLE_HORZ_BANDING,
+                       DEFAULT_TABLE_MARK_FIRST_ROW)
 
 TITLE_ONLY_LAYOUT=5
 
@@ -102,7 +105,8 @@ class RowTableBuilder(ElementBuilder):
             width=Cm(self.width),
             height=Cm(self.height)).table
 
-        table.first_row=False  # disable coloring fist row
+        table.horz_banding=DEFAULT_TABLE_HORZ_BANDING
+        table.first_row=DEFAULT_TABLE_MARK_FIRST_ROW  # disable coloring fist row
 
         for (row_number,row_text_list) in enumerate(self.rows):
             table.rows[row_number].height=Cm(self.row_height)

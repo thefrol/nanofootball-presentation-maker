@@ -31,6 +31,8 @@ DEFAULT_TITLE='---' #TODO default value for non found items
 
 DEFAULT_TABLE_WIDTH=3
 DEFAULT_TABLE_ROW_HEIGHT=0.4
+DEFAULT_TABLE_HORZ_BANDING=False  # rows alternates color if True
+DEFAULT_TABLE_MARK_FIRST_ROW=False  # highlights first row with alternative color if True
 
 # SVG SETTINGS
 svg_replacements={
