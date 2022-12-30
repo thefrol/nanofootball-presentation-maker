@@ -14,7 +14,7 @@
 
     pip install pipwin
     pipwin install cairocffi
-    // или python -m install cairocfffi
+    // или python -m install cairocffi
 
     pip install nf_presentation
 
