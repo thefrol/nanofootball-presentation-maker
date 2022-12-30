@@ -2,3 +2,5 @@ src/nf_presentation/__pycache__
 .vscode
 _local
 src/nf_presentation.*
+src/nf_presentation/__pycache__
+

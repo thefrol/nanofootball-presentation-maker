@@ -3,6 +3,7 @@ from typing import IO
 from .builders import PresentationBuilder
 from .exercise_info import ExerciseInfo
 from .scheme_renderer import SchemeRenderer
+from .html_renderer import HTMLRenderer
 from .settings import (
                 DEFAULT_SLIDE_TITLE,PRESENTATION_RATIO,
                 ADDITIONAL_TABLE_POSITION, ADDITIONAL_TABLE_WIDTH,
@@ -29,10 +30,11 @@ class ReportRenderer:
         title=slide.create_title(DEFAULT_SLIDE_TITLE).at(TITLE_POSITION).with_size(TITLE_SIZE)
         title.with_foreground(TITLE_FOREGROUND).with_background(TITLE_BACKGROUND)
 
+        decription_text=HTMLRenderer().render(exercise.description)
         basic_info_table=slide.create_table().at(BASIC_TABLE_POSITION).with_width(BASIC_TABLE_WIDTH)
         basic_info_table.append_row(exercise.title)
         basic_info_table.append_empty_row()
-        basic_info_table.append_row(exercise.description)
+        basic_info_table.append_row(decription_text)
         # mayble here add default params iter
 
         additional_info_table=slide.create_table().at(ADDITIONAL_TABLE_POSITION).with_width(ADDITIONAL_TABLE_WIDTH)
