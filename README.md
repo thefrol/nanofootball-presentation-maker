@@ -10,8 +10,11 @@
 
 ## Для Виндоус систем
 
+Тут потребуется дополнительная установка библиотеки `cairoffi` которую легче всего сделать при помощи `pipwin`
+
     pip install pipwin
     pipwin install cairocffi
+    // или python -m install cairocfffi
 
     pip install nf_presentation
 
