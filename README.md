@@ -4,6 +4,15 @@
 
 # Установка
 
+## Для Линукс систем
+
+    pip install nf_presentation
+
+## Для Виндоус систем
+
+    pip install pipwin
+    pipwin install cairocffi
+
     pip install nf_presentation
 
 # Использование

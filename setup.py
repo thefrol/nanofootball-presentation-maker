@@ -10,7 +10,7 @@ long_description=(this_directory / 'README.MD').read_text(encoding='utf8')
 
 setup(
     name='nf_presentation',
-    version='0.1.0',
+    version='0.1.1',
     author='Dmitriy Frolenko',
     author_email='orangefrol@gmail.com',
     packages=find_packages(where='src'),

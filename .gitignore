@@ -3,4 +3,6 @@ src/nf_presentation/__pycache__
 _local
 src/nf_presentation.*
 src/nf_presentation/__pycache__/*
+build
+dist
 upload_to_pypi.ps1
