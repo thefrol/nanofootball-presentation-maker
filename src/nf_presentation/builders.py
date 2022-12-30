@@ -200,7 +200,9 @@ class RowTableBuilder(ElementBuilder):
     def cols_count(self):
         """returns amount of columns in a table, based on the data added by append_row and extend_rows
         so it returns a maximum amount of elements in a row"""
-        return max(*[len(row_items) for row_items in self.rows])
+        if not self.rows:
+            return 1  # the table is empty
+        return max([len(row_items) for row_items in self.rows])
 
     @property
     def height(self):
@@ -213,6 +215,9 @@ class RowTableBuilder(ElementBuilder):
     
 
     def _build(self, slide:Slide):
+        if self.rows_count==0:
+            print('the table is empty and not rendered')
+            return
         table=slide.shapes.add_table(
             rows=self.rows_count,
             cols=self.cols_count,
@@ -286,6 +291,9 @@ class SlideBuilder(Builder):
 
     def create_image(self,image_file:str) -> ImageBuilder:
         return self.add_element(ImageBuilder(image=image_file))
+
+    def create_text(self, text:str) -> TextBuilder:
+        return self.add_element(TextBuilder(text=text))
     
     def create_title(self, text:str) -> TitleBuilder:
         return self.add_element(TitleBuilder(text=text))
@@ -345,7 +353,7 @@ class PresentationBuilder:
         """DEPRECATED"""
         self.slide_builders.append(slide_builder)
 
-    def create_slide(self):
+    def create_slide(self) -> SlideBuilder:
         slide_builder=SlideBuilder()
         self.slide_builders.append(slide_builder)
         return slide_builder

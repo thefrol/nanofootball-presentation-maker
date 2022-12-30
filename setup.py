@@ -19,5 +19,10 @@ setup(
     url='https://github.com/thefrol/nanofootball-presentation',
     long_description=long_description,
     long_description_content_type='text/markdown; variant=GFM',
-    license="MIT"
+    license="MIT",
+    python_requires='>3.7.0',
+    package_data={
+        'nf_presentation':['*.png','*.json']
+    }
+
 )

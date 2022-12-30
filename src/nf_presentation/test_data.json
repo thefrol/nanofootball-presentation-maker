@@ -3,7 +3,7 @@
     "event_date": "09/12/2022",
     "event_time": "09:00",
     "favourites": false,
-    "trainer": null,
+    "trainer": "Иванов И.И.",
     "space": 1,
     "space_info": {
         "id": 1,
@@ -35,7 +35,188 @@
             "duration": 25,
             "order": 0,
             "description": "dsadsadasdas",
-            "additional": [],
+            "additional": [
+                {
+                    "id": 99,
+                    "additional_name": {
+                        "en": "Neutral",
+                        "ru": "Нейтральные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 6,
+                    "note": null
+                },
+                {
+                    "id": 100,
+                    "additional_name": {
+                        "en": "Series",
+                        "ru": "Серии"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 7,
+                    "note": null
+                },
+                {
+                    "id": 101,
+                    "additional_name": {
+                        "en": "Repetitions",
+                        "ru": "Повторения"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 8,
+                    "note": null
+                },
+                {
+                    "id": 102,
+                    "additional_name": {
+                        "en": "Pulse",
+                        "ru": "Пульс"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 9,
+                    "note": null
+                },
+                {
+                    "id": 103,
+                    "additional_name": {
+                        "en": "Repetitions",
+                        "ru": "Повторения"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 8,
+                    "note": ""
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "Количество  игроков"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "Еще данные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "Еще данные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "Еще данные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще данные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": "23"
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще данные"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "И еще"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": null
+                },
+                {
+                    "id": 104,
+                    "additional_name": {
+                        "en": "Players amount",
+                        "ru": "Вторая страница"
+                    },
+                    "training_exercise_id": 103,
+                    "additional_id": 3,
+                    "note": "Пошла"
+                }
+            ],
             "exercise_data": {
                 "id": 86,
                 "user": 2,
