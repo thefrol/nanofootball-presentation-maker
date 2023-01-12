@@ -10,13 +10,16 @@
 
 ## Для Виндоус систем
 
-Тут потребуется дополнительная установка библиотеки `cairocffi` которую легче всего сделать при помощи `pipwin`
 
-    pip install pipwin
-    pipwin install cairocffi
+Тут потребуется дополнительная установка библиотеки `cairocffi`
+
+    pip install cairocffi --trusted-host www.lfd.uci.edu --extra-index-url http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
     // или python -m install cairocffi
-
+    // сама библиотека доступна https://github.com/Kozea/cairocffi
+    // или в таком репозитории http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
     pip install nf_presentation
+
+upd. pipwin больше не нужен
 
 # Использование
 
