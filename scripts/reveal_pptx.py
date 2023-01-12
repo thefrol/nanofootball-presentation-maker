@@ -5,13 +5,9 @@ from pptx.slide import Slide
 
 file='sample.pptx'
 
-p:pptx.Presentation=pptx.Presentation(pptx=file)
-slide:Slide=p.slides[0]
-for shape in slide.shapes:
-    print(shape.name)
-    # for placeholder in shape.placeholders:
-    #     print('...'+placeholder.name)
-#placeholder:SlidePlaceholder=slide.shapes.placeholders[13]
-#
-print(placeholder.placeholder_format)
-
+p:pptx.Presentation=pptx.Presentation()
+for (i,layout) in enumerate(p.slide_layouts):
+    print(f'LAYOUT ---{i}-----')
+    slide = p.slides.add_slide(layout)
+    for shape in slide.placeholders:
+       print('%d %s' % (shape.placeholder_format.idx, shape.name))

@@ -1,9 +1,9 @@
 from typing import IO
 
-from .builders import PresentationBuilder
+from nf_presentation.builders import PresentationBuilder
 from .exercise_info import ExerciseInfo
-from .scheme_renderer import SchemeRenderer
-from .html_renderer import HTMLRenderer
+from nf_presentation.scheme_renderer import SchemeRenderer
+from nf_presentation.html_renderer import HTMLRenderer
 from .settings import (
                 DEFAULT_SLIDE_TITLE,PRESENTATION_RATIO,
                 ADDITIONAL_TABLE_POSITION, ADDITIONAL_TABLE_WIDTH,

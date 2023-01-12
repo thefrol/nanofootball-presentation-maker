@@ -1,10 +1,19 @@
+import json
+import io
+
 from nanofoot import ExercisesService
 from nf_presentation import ReportRenderer
-import json
 from nf_presentation.data_classes import TrainingInfo
 from nf_presentation import create_from_test_data,create_pptx
 
-create_from_test_data(output_file='from_test_data.pptx')
+target_file='from_stream.pptx'
+
+with io.BufferedRandom(io.BytesIO()) as f,open(target_file,'wb') as t:
+    create_from_test_data(output_file=f)
+    f.seek(0)
+    t.write(f.read())
+
+
 
 
 # name='Иванов А.А.'

@@ -1,3 +1,6 @@
 python-pptx
 CairoSVG # and pip install pipwin && pipwin install cairocffi
 html2text
+
+--trusted-host www.lfd.uci.edu --extra-index-url http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
+cairocffi 
