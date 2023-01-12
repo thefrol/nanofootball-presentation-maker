@@ -1,11 +1,16 @@
+import json
+import io
+
 from nanofoot import ExercisesService
 from nf_presentation import ReportRenderer
-import json
 from nf_presentation.data_classes import TrainingInfo
 from nf_presentation import create_from_test_data,create_pptx
 
-create_from_test_data(output_file='from_test_data.pptx')
+#create_from_test_data(output_file='from_test_data.pptx')
 
+
+data=create_from_test_data()
+print(data)
 
 # name='Иванов А.А.'
 # export_to='from_real_data.pptx'
