@@ -38,9 +38,17 @@
 
 # Использование
 
-    from nf_presentation import create_pptx
+Ломовые изменния в 0.2.0:
+* теперь у нас только две функции `from_training()`, `from_single exercise()`. Одна для создания презентаций из тренировок, вторая для упражнений. 
+* Данные подаются через аргумент `input_data`. Можно использовать значение `'test'` для использования тестовых данных
+* `output_file` больше не принимает файл-объекты потоков
 
-    pptx_bytes= create_pptx(input_data=training_data_dict)
+    import nf_presentation
+
+    # для тренировки
+    pptx_bytes= nf_presentaion.from_training(input_data=training_data_dict)
+    # или для одного упражнения
+    pptx_bytes= nf_presentaion.from_single_exercise(input_data=exercise_data_dict)
 
     response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
     resonse['Content-Disposition']='attachement;filename="out.pptx"'
@@ -52,43 +60,48 @@
 
 Для работы локально иногда может потребовать записать данные файл, для этого достаточно добавитьь аргумент `output_file`.
 
-    import io
-    from nf_presentation import create_pptx
-
-    create_pptx(input_data=training_data_dict, output_file='out')
+    import nf_presentation
+    
+    nf_presentation.from_training(input_data=training_data_dict, output_file='out.pptx')
 
 Теперь `create_pptx()` вернет None
 
 ## Тестовые данные
 
-В пакет встроенны тестовые данные, и работоспособность пакета можно проверить так:
+В пакет встроенны тестовые данные, и работоспособность пакета можно указав `input_data='test'`
 
-    from nf_presentation import create_from_test_data
+    import nf_presentation
 
-    pptx_bytes= create_from_test_data()
-
-    response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
-    resonse['Content-Disposition']='attachement;filename="out.pptx"'
-    return response
+    pptx_bytes= nf_presentaion.from_training(input_data='test')
+    # или для одного упражнения
+    pptx_bytes= nf_presentaion.from_singe_exercise(input_data='test')
 
 Для вывода во временный файл достаточно назначить аргумент `output_file` вывода во временный файл можно использовать поток, как в примере выше
 
-    from nf_presentation import create_from_test_data
-    create_from_test_data(output_file='from_test_data.pptx')
+    import nf_presentation
+
+    nf_presentaion.from_singe_exercise(output_file='from_test_data.pptx')
+
+# Проблемы
+
+1. Больше всего времени уходит на создание схемы. А все потому что он выкачивает из интернета ссылки на файлы, если бы я знал, где локально хранятся файлы, это можно было бы в разы ускорить
+2. Описание пока вообще не рендерится
+3. Упражнения которые приходят из событий по структуре отличаются от упражнений в списке упражнений
 
 
 ## TODO
 
-1. [ ] Настроить логгер вместо print(..)
-1. [x] ~~Устранить утечку памяти где создается поток для объектак. Используя with~~
-2. [x] ~~Презентация в широком формате~~
-3. [x] ~~Новое форматирование~~
-4. [ ] Описание сделал читабельным
-5. [ ] Капитализация значений в левой таблице
-6. [ ] Размер шрифта, положение в строке
-7. [ ] Форматирование в шаблоне двухконтентном
-8. [ ] ~~Цвета~~
-9. [ ] Cоздать презентацию для каждого упражнения, дабы отловить возможные ошибки
+1. [ ] Добавить слияние ячеек в таблице, если есть пустые строки
+2. [ ] Создать абстрактный класс, который бы мог работать как с упражнениями из событий так и обычными, а может потом будет ещё какая-то новая структура. Надо быть готовым :(
+3. [ ] Настроить логгер вместо print(..)
+4. [x] ~~Устранить утечку памяти где создается поток для объектак. Используя with~~
+5. [x] ~~Презентация в широком формате~~
+6. [x] ~~Новое форматирование~~
+7. [ ] Описание сделал читабельным
+8. [ ] Размер шрифта, положение в строке
+9. [ ] Форматирование в шаблоне двухконтентном
+10. [ ] ~~Цвета~~
+11. [ ] Cоздать презентацию для каждого упражнения, дабы отловить возможные ошибки
 
 ## Текущие проблемы
 
