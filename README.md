@@ -10,36 +10,54 @@
 
 ## Для Виндоус систем
 
+На данный момент pipwin перестал работать, так что установка кринжеватая. Но быстрая
 
-Тут потребуется дополнительная установка библиотеки `cairocffi`
+Тут потребуется дополнительная установка библиотеки `cairocffi`, которую нужно скачать вручную с http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
 
-    pip install cairocffi --trusted-host www.lfd.uci.edu --extra-index-url http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
-    // или python -m install cairocffi
-    // сама библиотека доступна https://github.com/Kozea/cairocffi
-    // или в таком репозитории http://www.lfd.uci.edu/~gohlke/pythonlibs/#cairocffi
+Выбрать под свою версию питона, например cairocffi‑1.3.0‑cp310‑cp310‑win_amd64.whl (для систем х64 и и питона 3.10(это можно узнать по записи `cp310`)) 
+
+    pip install cairocffi‑1.3.0‑cp310‑cp310‑win_amd64.whl //или другой ваш файл
     pip install nf_presentation
 
-upd. pipwin больше не нужен
+Проверить можно так:
+
+    python 
+
+    >> import nf_presentation
+
+Если все прошло гладко, значит ты молодец, установка прошла успешно. В противном случачае вылезет ошибка
+
+    OSError: no library called "cairo-2" was found
+    no library called "cairo" was found
+    no library called "libcairo-2" was found
+    cannot load library 'libcairo.so.2': error 0x7e
+    cannot load library 'libcairo.2.dylib': error 0x7e
+    cannot load library 'libcairo-2.dll': error 0x7e
+
+Значит `cairocffi` все еще неправильно установлена, попробуй удалить ее `pip uninstall cairocffi` и попробуй еще раз
 
 # Использование
 
     from nf_presentation import create_pptx
 
-    create_pptx(input_data=training_data_dict,output_file='output.pptx')
+    pptx_bytes= create_pptx(input_data=training_data_dict)
 
-И далее `output.pptx` можно отправлять уже пользователям
+    response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
+    resonse['Content-Disposition']='attachement;filename="out.pptx"'
+    return response
 
-## Запись в поток
+`pptx_bytes` это массив байтов, которые уже можно передать пользователям nf
 
-Вместо того, чтобы создавать временный файл, функция `create_pptx` может писать в сразу в поток(файл-объект), который затем можно отправить по сети. 
+## Запись в файл или поток
+
+Для работы локально иногда может потребовать записать данные файл, для этого достаточно добавитьь аргумент `output_file`.
 
     import io
     from nf_presentation import create_pptx
 
-    with io.BytesIO() as f:
-        create_pptx(input_data=training_data_dict, output_file=f)
-        send_file(f)  # your server response to client
-    
+    create_pptx(input_data=training_data_dict, output_file='out')
+
+Теперь `create_pptx()` вернет None
 
 ## Тестовые данные
 
@@ -47,13 +65,17 @@ upd. pipwin больше не нужен
 
     from nf_presentation import create_from_test_data
 
-    create_from_test_data(output_file='output.pptx')
+    pptx_bytes= create_from_test_data()
 
-Вместо вывода во временный файл можно использовать поток, как в примере выше
+    response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
+    resonse['Content-Disposition']='attachement;filename="out.pptx"'
+    return response
 
-        with io.BytesIO() as f:
-            create_from_test_data(output_file=f)
-            send_file(f)  # your server response to client
+Для вывода во временный файл достаточно назначить аргумент `output_file` вывода во временный файл можно использовать поток, как в примере выше
+
+    from nf_presentation import create_from_test_data
+    create_from_test_data(output_file='from_test_data.pptx')
+
 
 ## TODO
 

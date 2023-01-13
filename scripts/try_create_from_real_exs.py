@@ -13,8 +13,11 @@ with io.BufferedRandom(io.BytesIO()) as f,open(target_file,'wb') as t:
     f.seek(0)
     t.write(f.read())
 
+#create_from_test_data(output_file='from_test_data.pptx')
 
 
+data=create_from_test_data()
+print(data)
 
 # name='Иванов А.А.'
 # export_to='from_real_data.pptx'
