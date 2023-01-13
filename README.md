@@ -46,9 +46,9 @@
     import nf_presentation
 
     # для тренировки
-    pptx_bytes= nf_presentaion.from_training(input_data=training_data_dict)
+    pptx_bytes= nf_presentation.from_training(input_data=training_data_dict)
     # или для одного упражнения
-    pptx_bytes= nf_presentaion.from_single_exercise(input_data=exercise_data_dict)
+    pptx_bytes= nf_presentation.from_single_exercise(input_data=exercise_data_dict)
 
     response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
     resonse['Content-Disposition']='attachement;filename="out.pptx"'
@@ -72,15 +72,15 @@
 
     import nf_presentation
 
-    pptx_bytes= nf_presentaion.from_training(input_data='test')
+    pptx_bytes= nf_presentation.from_training(input_data='test')
     # или для одного упражнения
-    pptx_bytes= nf_presentaion.from_singe_exercise(input_data='test')
+    pptx_bytes= nf_presentation.from_singe_exercise(input_data='test')
 
 Для вывода во временный файл достаточно назначить аргумент `output_file` вывода во временный файл можно использовать поток, как в примере выше
 
     import nf_presentation
 
-    nf_presentaion.from_singe_exercise(output_file='from_test_data.pptx')
+    nf_presentation.from_singe_exercise(output_file='from_test_data.pptx')
 
 # Проблемы
 
