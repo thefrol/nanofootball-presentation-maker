@@ -10,7 +10,7 @@ long_description=(this_directory / 'README.MD').read_text(encoding='utf8')
 
 setup(
     name='nf_presentation',
-    version='0.2.3',
+    version='0.2.4',
     author='Dmitriy Frolenko',
     author_email='orangefrol@gmail.com',
     packages=find_packages(where='src'),
@@ -23,7 +23,7 @@ setup(
     license="MIT",
     python_requires='>3.7.0',
     package_data={
-        'nf_presentation':['*.png','*.json']
+        'nf_presentation':['*.png','*.svg','*.json']
     }
 
 )
