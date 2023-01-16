@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
+VERSION_FILE='VERSION'
+
 with open('requirements.txt','r') as f:
     requirements=f.readlines()
 
@@ -10,7 +12,7 @@ long_description=(this_directory / 'README.MD').read_text(encoding='utf8')
 
 setup(
     name='nf_presentation',
-    version='0.2.6',
+    version=open(VERSION_FILE,'r').read(),
     author='Dmitriy Frolenko',
     author_email='orangefrol@gmail.com',
     packages=find_packages(where='src'),
