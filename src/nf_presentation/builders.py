@@ -7,7 +7,7 @@ from typing import Union,Iterable,Iterator
 from pptx import Presentation
 from pptx.slide import Slide
 from pptx.table import Table
-from pptx.util import Cm, Inches,Emu
+from pptx.util import Cm, Inches,Emu,Pt
 from pptx.enum.dml import MSO_THEME_COLOR
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
@@ -16,7 +16,10 @@ from .settings import (DEFAULT_TABLE_WIDTH,
                        DEFAULT_TABLE_ROW_HEIGHT,
                        DEFAULT_TABLE_HORZ_BANDING,
                        DEFAULT_TABLE_MARK_FIRST_ROW,
+                       DEFAULT_TEXT_FONT_SIZE_PT,
+                       DEFAULT_TITLE_FONT_SIZE_PT
                        )
+
 
 TITLE_ONLY_LAYOUT=5
 BLANK_LAYOUT=6
@@ -120,11 +123,12 @@ class TextAlign:
 
 
 class TextBuilder(ColoredBoxBuilder):
-    def __init__(self, text:str,autosize=None, align=None):
+    def __init__(self, text:str,autosize=None, align=None, size_pt=DEFAULT_TEXT_FONT_SIZE_PT):
         super().__init__()
         self.text=text
         self.text_align=align
         self.autosize=autosize
+        self.font_size_pt=size_pt
     def _build(self, slide: Slide):
         textbox=slide.shapes.add_textbox(
             left=Cm(self.left),
@@ -143,6 +147,7 @@ class TextBuilder(ColoredBoxBuilder):
             # font.name = 'Calibri'
             # font.size = Pt(18)
             # font.bold = True
+        font.size=Pt(self.font_size_pt)
         if self.foreground_color:
             font.color.rgb = self.foreground_color
 
@@ -155,13 +160,18 @@ class TextBuilder(ColoredBoxBuilder):
 
 class TitleBuilder(TextBuilder):
     def __init__(self, text: str):
-        super().__init__(text, autosize=None,align=TextAlign.Center)
+        super().__init__(text, autosize=None,align=TextAlign.Center,size_pt=DEFAULT_TITLE_FONT_SIZE_PT)
     def _build(self, slide: Slide):
         textbox=super()._build(slide)
         slide.title=textbox
         
 
-        
+class RowDefinition:
+    def __init__(self,texts,background=None,foreground=None,font_size_pt=DEFAULT_TEXT_FONT_SIZE_PT):
+        self.background_color=background
+        self.texts=texts
+        self.foreground_color=foreground
+        self.font_size_pt=font_size_pt
 
 class RowTableBuilder(ElementBuilder):
     """a class building a table from rows,
@@ -229,23 +239,52 @@ class RowTableBuilder(ElementBuilder):
         table.horz_banding=DEFAULT_TABLE_HORZ_BANDING
         table.first_row=DEFAULT_TABLE_MARK_FIRST_ROW  # disable coloring fist row
 
+
         for (row_number,row_text_list) in enumerate(self.rows):
             table.rows[row_number].height=Cm(self.row_height)
+            initial_cell=table.cell(row_number,0)
+            p=initial_cell.text_frame.paragraphs[0]
+            p.font.size=Pt(DEFAULT_TEXT_FONT_SIZE_PT)  # if row is empty we need to set the font size anyways
+                                                        #TODO: extract method
+
+            last_filled_cell=initial_cell
             for (column_number, cell_text) in enumerate(row_text_list):
                 #TODO if isinstance(cell_text,HTMLCell)
-                table.cell(row_number,column_number).text=str(cell_text)
+                #table.cell(row_number,column_number).text=str(cell_text)
+                cell=table.cell(row_number,column_number)
+                p=cell.text_frame.paragraphs[0]
+                
+                p.font.size=Pt(DEFAULT_TEXT_FONT_SIZE_PT)
+                p.text=str(cell_text)
+                last_filled_cell=cell
+            #i this row is shorter than others we merge last cells
+            try:              
+                last_filled_column=len(row_text_list)
+                if(last_filled_column<self.cols_count):
+                    for empty_column_number in range(last_filled_column,self.cols_count):
+                        empty_cell=table.cell(row_number,empty_column_number)
+                        last_filled_cell.merge(empty_cell)
+            except KeyboardInterrupt:
+                print('Error while merging cells in a pptx table')
 
-class ImageBuilder(ElementBuilder):
+
+class ImageBuilder(BoxElementBuilder):
     """a class for adding images to a slide,
     automaticly scales for height or width
     so can use set_size(width,None) to scale image to width and same for height(leave width None)"""
-    def __init__(self, image, position : tuple[float,float] = (1.,1.), size=None):
+    def __init__(self, image):
+        super().__init__()
         self.image=image
-        self.position=position
-        self.size=size
+        self.href=None
 
-    def set_size(self,width,height):
+    def set_size(self,width=None,height=None):
+        """DEPRECATED"""
         self.size=width,height
+        return self
+
+    def with_href(self, href:str):
+        """adds a hyperlink to this shape, ex. builder.with_href('https://nanofootball.com')"""
+        self.href=href
         return self
 
     @property
@@ -258,12 +297,14 @@ class ImageBuilder(ElementBuilder):
         return height
 
     def _build(self, slide: Slide):
-        slide.shapes.add_picture(
+        shape=slide.shapes.add_picture(
             image_file=self.image,
             left= Cm(self.left),
             top= Cm(self.top),
             width=Cm(self.width) if self.width else None,
             height=Cm(self.height) if self.height else None)
+        if self.href:
+            shape.click_action.hyperlink.address=self.href
     
 
 

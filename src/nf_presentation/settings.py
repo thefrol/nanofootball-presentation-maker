@@ -41,12 +41,14 @@ DEFAULT_SLIDE_TITLE='Основная часть'
 # PRESENTATION SETTINGS
 
 DEFAULT_TITLE='---' #TODO default value for non found items
-
+DEFAULT_TITLE_FONT_SIZE_PT=18
+DEFAULT_TEXT_FONT_SIZE_PT=12
 
 DEFAULT_TABLE_WIDTH=3
 DEFAULT_TABLE_ROW_HEIGHT=0.4
 DEFAULT_TABLE_HORZ_BANDING=False  # rows alternates color if True
 DEFAULT_TABLE_MARK_FIRST_ROW=False  # highlights first row with alternative color if True
+
 
 #DATA
 EMPY_DESCRIPLION_REPLACEMENT='Пустое описание'  # if description is empty or None

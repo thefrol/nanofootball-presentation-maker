@@ -3,6 +3,10 @@ from .settings import (
                     EMPTY_TRAINER_NAME_REPLACEMENT,
                     UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
 
+from ._settings.basic import create_player_link
+
+
+
 class GroupInfo:
     """a class representing a position of exercise, in A1, A2, A3 B3 and others"""
     _group_names={
@@ -93,8 +97,28 @@ class TrainingInfo:
 
 # a class for exercise info of single exercise, it has a different scructure :(
 
+class MediaLink:
+    def __init__(self, raw_data):
+        self.raw_data=raw_data
+    @property
+    def id(self):
+        return self.raw_data.get('id')
+    @property
+    def nftv_id(self):
+        return self.raw_data.get('links',{}).get('nftv')
+    @property
+    def youtube_id(self):
+        return self.raw_data.get('links',{}).get('youtube')
+    @property
+    def nftv_player(self):
+        return create_player_link(self.nftv_id)
+
+
+
 class SingleExerciseInfo:
     """A class representing info we get for an exercise to a python object"""
+    _media_fields=['video_1','video_2','animation_1','animation_2']
+
     def __init__(self, raw_data:dict):
         self.raw_data=raw_data
     @property
@@ -110,3 +134,38 @@ class SingleExerciseInfo:
     @property
     def schemes(self):
         return self.raw_data.get('scheme_data',[])
+    @property
+    def video_1(self):
+         return MediaLink(self.raw_data.get('video_1'))
+    @property
+    def video_2(self):
+         return MediaLink(self.raw_data.get('video_2'))
+    @property
+    def animation_1(self):
+         return MediaLink(self.raw_data.get('animation_1'))
+    @property
+    def animation_2(self):
+         return MediaLink(self.raw_data.get('animation_2'))
+    def get_media(self, field_name):
+        """returns a media link to videos
+        Attributes:
+            field_name:'video_1','video_2','animation_1',...
+        
+        Returns:
+            a MediaLink object or None
+            """
+        if field_name not in self._media_fields:
+            print(f'warn: trying to get media field "{field_name}" from exercise_data, safe choices are {self._media_fields}')
+        return MediaLink(self.raw_data.get(field_name))
+    @property
+    def medias(self):
+        """returns a collection of medias like video1, video2 and others"""
+    @property
+    def media_as_dict(self):
+        """returns a dict of existing(!) medias
+            ex.
+            {
+                'video_1':MediaLink(...),
+                'animation_1':MediaLink(...)"""
+        return {field:self.raw_data.get(field) for field in self._media_fields}
+    
