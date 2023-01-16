@@ -1,7 +1,8 @@
 import nf_presentation
 
 render_dict={
-    'video_1':True
+    'video_1':True,
+    'animation_1':True
 }
 
 

@@ -13,7 +13,7 @@ def get_test_data(short=True) -> dict:
     return pkg_resources.open_text(__package__, resource_path,encoding='utf8')
 
 def get_exercise_test_data() -> dict:
-    return pkg_resources.open_text(__package__, 'exercise_test_data.json',encoding='utf8')
+    return pkg_resources.open_text(__package__, 'exercise_test_data_new.json',encoding='utf8')
 
 def get_asset_stream(filename):
     """returns a file-object of resource with given filename"""

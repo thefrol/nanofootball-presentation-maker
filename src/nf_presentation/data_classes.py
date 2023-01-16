@@ -101,6 +101,9 @@ class MediaLink:
     def __init__(self, raw_data):
         self.raw_data=raw_data
     @property
+    def exist(self):
+        return self.id!=-1
+    @property
     def id(self):
         return self.raw_data.get('id')
     @property

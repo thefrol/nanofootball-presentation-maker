@@ -78,10 +78,17 @@ class CompactRenderer(BaseRenderer):
         slide.create_image(image_stream).at(current_layout.SCHEME_POSITION).set_size(current_layout.SCHEME_WIDTH,None)
 
         #add links
+        links_added=False
         slide.create_text('Ссылки:').at(current_layout.LINKS_TITLE_POSITION)
 
         link_position=current_layout.LINKS_AREA
         for media_field in self.render_options.media_fields_to_render:
+            media=exercise.get_media(media_field)
+            if not media.exist:
+                print(f'ERR: requested "{media_field}" is not in the current exercise. skipping')
+                continue
+
+
             player_url=exercise.get_media(media_field).nftv_player
             is_animation='animation' in media_field
 
@@ -93,6 +100,10 @@ class CompactRenderer(BaseRenderer):
             x_delta,y_delta=current_layout.LINKS_IMAGE_SIZE
             position_increment=x_delta,0
             link_position=link_position+position_increment
+
+            links_added=True
+        if not links_added:
+            print('WARN: not links added to presentation')
 
 
 
