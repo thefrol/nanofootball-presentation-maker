@@ -97,9 +97,9 @@ class CompactRenderer(BaseRenderer):
             self.track_stream(image_stream)
             slide.create_image(image_file=image_stream).at(link_position).with_size(current_layout.LINKS_IMAGE_SIZE).with_href(player_url)
 
-            x_delta,y_delta=current_layout.LINKS_IMAGE_SIZE
-            position_increment=x_delta,0
-            link_position=link_position+position_increment
+            x_delta,_=current_layout.LINKS_IMAGE_SIZE
+            x,y=link_position
+            link_position=(x+x_delta,y)
 
             links_added=True
         if not links_added:
