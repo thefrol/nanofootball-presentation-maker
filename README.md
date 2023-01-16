@@ -50,7 +50,7 @@
     # для тренировки
     pptx_bytes= nf_presentation.from_training(input_data=training_data_dict)
     # или для одного упражнения
-    pptx_bytes= nf_presentation.from_single_exercise(input_data=exercise_data_dict)
+    pptx_bytes= nf_presentation.from_single_exercise(input_data=exercise_data_dict, render_options={'scheme_1':True, 'scheme_2':False})
 
     response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
     resonse['Content-Disposition']='attachement;filename="out.pptx"'
@@ -93,6 +93,7 @@
 
 ## TODO
 
+1. [ ] добавть новую рисовалку 
 1. [ ] Добавить слияние ячеек в таблице, если есть пустые строки
 2. [ ] Создать абстрактный класс, который бы мог работать как с упражнениями из событий так и обычными, а может потом будет ещё какая-то новая структура. Надо быть готовым :(
 3. [ ] Настроить логгер вместо print(..)

@@ -75,7 +75,7 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
         renderer.save(to=output_file)
 
 @return_bytes
-def from_single_exercise(input_data : Union[dict,str], output_file : Union[str,None]= None) -> bytes:
+def from_single_exercise(input_data : Union[dict,str], render_options: dict , output_file : Union[str,None]= None) -> bytes:
     """A function creating a pptx file from exercise object in Nanofootball API
     Arguments:
         input_data: dict | str
@@ -83,6 +83,16 @@ def from_single_exercise(input_data : Union[dict,str], output_file : Union[str,N
             dict - a dict-like object containing server request for making a pptx file
         output_file: str|None
             a destination for rendering pptx, may be a string for saving locally,
+        render_options: dict
+            a set of items to show or not show on the rendered scheme
+                ex. {
+                scheme_1=True,
+                scheme_2=True,
+                scheme_1_old=True
+                scheme_2_old=True,
+                video_1=True,
+                ...
+                }
 
     Output:
         Byte-array 
