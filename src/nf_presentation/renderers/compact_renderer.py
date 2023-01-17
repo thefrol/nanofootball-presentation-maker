@@ -1,8 +1,6 @@
 from nf_presentation.renderers.base_renderer import BaseRenderer
 from nf_presentation.data_classes import SingleExerciseInfo
-from nf_presentation.html_renderer import HTMLRenderer
-from nf_presentation.scheme_renderer import SchemeRenderer
-import nf_presentation.assets as assets
+from nf_presentation.builders import ParagraphBuilder
 
 from nf_presentation._settings import compact_layout as current_layout
 import nf_presentation.settings as base_settings
@@ -69,6 +67,12 @@ class CompactRenderer(BaseRenderer):
         else:
             left_rows=[(param,'') for param in additional_params]
 
+        if current_layout.CAPITALIZE_ADDITIONAL_DATA:
+            capitalized_rows=[]
+            for row in left_rows:
+                capitalized_rows.append((text.upper() for text in row))
+            left_rows=capitalized_rows
+
         left_table=slide.create_table().at(current_layout.LEFT_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
         left_table.append_row(exercise.title)
         left_table.append_empty_row()
@@ -78,6 +82,12 @@ class CompactRenderer(BaseRenderer):
 
         #schemes
         scheme_added=False
+
+        scheme_names=self.render_options.schemes_to_render
+        if len(scheme_names)==0:
+            scheme_names=['scheme_1_old','scheme_2_old']
+            logger.error(f'no schemes selected in render_options falling back to {scheme_names}')
+            
         for scheme_name in self.render_options.schemes_to_render:
             scheme=exercise.get_scheme_by_name(scheme_name)
             if not scheme:
@@ -95,14 +105,17 @@ class CompactRenderer(BaseRenderer):
             scheme_added=True
             break
         if not scheme_added:
-            logger.error('No scheme added to slide')
+            logger.error('No scheme added to slide. ')
             #TODO image fallback
 
         #add links
         links_added=False
-        slide.create_text('Ссылки:').at(current_layout.LINKS_TITLE_POSITION)
-
-        link_position=current_layout.LINKS_AREA
+        links_table=slide.create_table().at(current_layout.LINKS_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
+        
+        pb=ParagraphBuilder()
+        #link_position=current_layout.LINKS_AREA
+        video_counter=0
+        animation_counter=0
         for media_field in self.render_options.media_fields_to_render:
             media=exercise.get_media(media_field)
             if not media.exist:
@@ -112,17 +125,32 @@ class CompactRenderer(BaseRenderer):
 
             player_url=exercise.get_media(media_field).nftv_player
             is_animation='animation' in media_field
+            if is_animation:
+                animation_counter=animation_counter+1
+            else:
+                video_counter=video_counter+1
+            
+            
 
-            image_file=current_layout.LINKS_ANIMATION_ICON_FILENAME if is_animation else current_layout.LINKS_VIDEO_ICON_FILENAME
-            image_stream=assets.convert_to_png(filename=image_file)
-            self.track_stream(image_stream)
-            slide.create_image(image_file=image_stream).at(link_position).with_size(current_layout.LINKS_IMAGE_SIZE).with_href(player_url)
+            pb.append_link(
+                link_text=f"Анимация {animation_counter}" if is_animation else f"Видео {video_counter}",
+                href=player_url)
+            pb.append_text(' ')
 
-            x_delta,_=current_layout.LINKS_IMAGE_SIZE
-            x,y=link_position
-            link_position=(x+x_delta,y)
+            
+
+            #image_file=current_layout.LINKS_ANIMATION_ICON_FILENAME if is_animation else current_layout.LINKS_VIDEO_ICON_FILENAME
+            #image_stream=assets.convert_to_png(filename=image_file)
+            #self.track_stream(image_stream)
+            #slide.create_image(image_file=image_stream).at(link_position).with_size(current_layout.LINKS_IMAGE_SIZE).with_href(player_url)
+
+            #x_delta,_=current_layout.LINKS_IMAGE_SIZE
+            #x,y=link_position
+            #link_position=(x+x_delta,y)
 
             links_added=True
+        links_table.append_row('Ссылки',pb)
+
         if not links_added:
             logger.warn('No links added to presentation')
 

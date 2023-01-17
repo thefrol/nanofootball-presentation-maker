@@ -10,11 +10,11 @@ render_dict={
     'pips':'aaa'
 }
 
-#data=ExercisesService().get(9490).raw_data
+data=ExercisesService().get(9490).raw_data
     
 
 nf_presentation.from_single_exercise(
-    input_data='test',
+    input_data=data,
     render_options=render_dict,
     output_file='single.pptx'
 )

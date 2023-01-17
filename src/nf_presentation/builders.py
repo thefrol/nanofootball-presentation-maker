@@ -6,6 +6,7 @@ from typing import Union,Iterable,Iterator
 
 from pptx import Presentation
 from pptx.slide import Slide
+from pptx.text.text import _Paragraph,_Run
 from pptx.table import Table
 from pptx.util import Cm, Inches,Emu,Pt
 from pptx.enum.dml import MSO_THEME_COLOR
@@ -123,6 +124,44 @@ class Builder:
 class TextAlign:
     Center=PP_ALIGN.CENTER
 
+class TextItem:
+    def __init__(self):
+        self.font_family=None
+        self.font_size=None
+    @abstractmethod
+    def _make_run(self, run:_Run):
+        pass
+
+class PlainText(TextItem):
+    def __init__(self,text:str):
+        super().__init__()
+        self.text=text
+    def _make_run(self, run:_Run):
+        super()._make_run(run)
+        run.text=self.text
+
+class HyperLink(TextItem):
+    def __init__(self,link_text:str,href:str):
+        super().__init__()
+        self.link_text=link_text
+        self.href=href
+    def _make_run(self, run:_Run):
+        super()._make_run(run)
+        run.text=self.link_text
+        run.hyperlink.address=self.href
+        
+
+class ParagraphBuilder(Builder):
+    def __init__(self):
+        self._items:list[TextItem]=[]
+    def append_text(self,text:str,):
+        self._items.append(PlainText(text=text))
+    def append_link(self,link_text:str,href:str):
+        self._items.append(HyperLink(link_text=link_text,href=href))
+    def _build(self, paragraph:_Paragraph):
+        for item in self._items:
+            run=paragraph.add_run()
+            item._make_run(run=run)
 
 class TextBuilder(ColoredBoxBuilder):
     def __init__(self, text:str,autosize=None, align=None, size_pt=DEFAULT_TEXT_FONT_SIZE_PT):
@@ -242,7 +281,7 @@ class RowTableBuilder(ElementBuilder):
         table.first_row=DEFAULT_TABLE_MARK_FIRST_ROW  # disable coloring fist row
 
 
-        for (row_number,row_text_list) in enumerate(self.rows):
+        for (row_number,row_content_list) in enumerate(self.rows):
             table.rows[row_number].height=Cm(self.row_height)
             initial_cell=table.cell(row_number,0)
             p=initial_cell.text_frame.paragraphs[0]
@@ -250,18 +289,26 @@ class RowTableBuilder(ElementBuilder):
                                                         #TODO: extract method
 
             last_filled_cell=initial_cell
-            for (column_number, cell_text) in enumerate(row_text_list):
+            for (column_number, cell_content) in enumerate(row_content_list):
                 #TODO if isinstance(cell_text,HTMLCell)
                 #table.cell(row_number,column_number).text=str(cell_text)
                 cell=table.cell(row_number,column_number)
                 p=cell.text_frame.paragraphs[0]
-                
                 p.font.size=Pt(DEFAULT_TEXT_FONT_SIZE_PT)
-                p.text=str(cell_text)
+                if isinstance(cell_content,str):
+                    p.text=str(cell_content)
+                elif isinstance(cell_content,ParagraphBuilder):
+                    cell_content:ParagraphBuilder=cell_content
+                    cell_content._build(p)
+                else:
+                    logger.error(f'unknown content in a row of class {cell_content.__class__}.skiping cell')
+                    continue
+                
+                
                 last_filled_cell=cell
             #i this row is shorter than others we merge last cells
             try:              
-                last_filled_column=len(row_text_list)
+                last_filled_column=len(row_content_list)
                 if(last_filled_column<self.cols_count):
                     for empty_column_number in range(last_filled_column,self.cols_count):
                         empty_cell=table.cell(row_number,empty_column_number)
