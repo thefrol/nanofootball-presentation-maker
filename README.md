@@ -50,7 +50,15 @@
     # для тренировки
     pptx_bytes= nf_presentation.from_training(input_data=training_data_dict)
     # или для одного упражнения
-    pptx_bytes= nf_presentation.from_single_exercise(input_data=exercise_data_dict, render_options={'scheme_1':True, 'scheme_2':False})
+    pptx_bytes= nf_presentation.from_single_exercise(
+        input_data=exercise_data_dict,
+        render_options={
+            'scheme_1':True,
+            'scheme_2':False,
+            'video_1':True,
+            'video_2':False,
+            'animation_1':True
+            })
 
     response=HttpResponse(pptx_bytes, content-type='application/vnd.ms-powerpoint'
     resonse['Content-Disposition']='attachement;filename="out.pptx"'
