@@ -21,6 +21,7 @@ from .report_renderer import ReportRenderer
 from nf_presentation.renderers.compact_renderer import CompactRenderer,RenderOptions
 from .data_classes import TrainingInfo
 from . import assets
+from nf_presentation.logger import logger
 
 
 def return_bytes(func):
@@ -70,7 +71,7 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
     with ReportRenderer() as renderer:
         renderer.add_title_slide(name=t.trainer_name)
         for exercise in t.exercises:
-            print(exercise.name)
+            logger.debug(f'rendering {exercise.name}')
             renderer.add_exercise_slide(exercise=exercise)
         renderer.save(to=output_file)
 
