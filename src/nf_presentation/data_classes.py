@@ -4,6 +4,7 @@ from .settings import (
                     UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
 
 from ._settings.basic import create_player_link
+from nf_presentation.logger import logger
 
 
 
@@ -158,7 +159,7 @@ class SingleExerciseInfo:
             a MediaLink object or None
             """
         if field_name not in self._media_fields:
-            print(f'warn: trying to get media field "{field_name}" from exercise_data, safe choices are {self._media_fields}')
+            logger.warn(f'trying to get media field "{field_name}" from exercise_data, safe choices are {self._media_fields}')
         return MediaLink(self.raw_data.get(field_name))
     @property
     def medias(self):

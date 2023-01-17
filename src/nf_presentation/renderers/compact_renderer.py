@@ -6,6 +6,7 @@ import nf_presentation.assets as assets
 
 from nf_presentation._settings import compact_layout as current_layout
 import nf_presentation.settings as base_settings
+from nf_presentation.logger import logger
 
 _default_description="""Описание:
 
@@ -29,7 +30,7 @@ class RenderOptions:
     def check(self):
         #check if video or animation will be added to pptx
         if not any([self.raw_data.get(field) for field in self._media_fields]):
-            print('WARN: (Render Options) no player links are marked to be added to pptx')
+            logger.warn('(Render Options) no player links are marked to be added to pptx')
 
 
 
@@ -85,7 +86,7 @@ class CompactRenderer(BaseRenderer):
         for media_field in self.render_options.media_fields_to_render:
             media=exercise.get_media(media_field)
             if not media.exist:
-                print(f'ERR: requested "{media_field}" is not in the current exercise. skipping')
+                logger.error(f'requested "{media_field}" is not in the current exercise. skipping')
                 continue
 
 
@@ -103,7 +104,7 @@ class CompactRenderer(BaseRenderer):
 
             links_added=True
         if not links_added:
-            print('WARN: not links added to presentation')
+            logger.warn('No links added to presentation')
 
 
 

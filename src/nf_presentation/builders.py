@@ -12,6 +12,8 @@ from pptx.enum.dml import MSO_THEME_COLOR
 from pptx.enum.text import PP_ALIGN
 from pptx.dml.color import RGBColor
 
+
+from nf_presentation.logger import logger
 from .settings import (DEFAULT_TABLE_WIDTH,
                        DEFAULT_TABLE_ROW_HEIGHT,
                        DEFAULT_TABLE_HORZ_BANDING,
@@ -226,7 +228,7 @@ class RowTableBuilder(ElementBuilder):
 
     def _build(self, slide:Slide):
         if self.rows_count==0:
-            print('the table is empty and not rendered')
+            logger.info('the table is empty and not rendered')
             return
         table=slide.shapes.add_table(
             rows=self.rows_count,
@@ -264,8 +266,8 @@ class RowTableBuilder(ElementBuilder):
                     for empty_column_number in range(last_filled_column,self.cols_count):
                         empty_cell=table.cell(row_number,empty_column_number)
                         last_filled_cell.merge(empty_cell)
-            except KeyboardInterrupt:
-                print('Error while merging cells in a pptx table')
+            except Exception:
+                logger.error('Error while merging cells in a pptx table')
 
 
 class ImageBuilder(BoxElementBuilder):
