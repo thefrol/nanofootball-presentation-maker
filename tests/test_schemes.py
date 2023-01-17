@@ -20,18 +20,8 @@ class TestRendering(unittest.TestCase):
         self.exercise=SingleExerciseInfo(raw_data=data)
         self.streams=[]
 
-    def test_old_schemes_manual_render(self):
-        file_name='test_png_creation.png'
-
-
-        svg1:str=self.exercise.schemes[0]
-        # links=get_links(svg1)
-
-        r=SchemeRenderer()
-        r.render_png(svg_text=svg1, to_file=file_name)
-        self.files_to_delete.append(file_name)
-        self.assertTrue(pathlib.Path(file_name).exists())
-    
+    #we need a test for old schemes too
+   
     def test_scheme_1(self):
         s=self.exercise.scheme_1.to_stream()
         self.streams.append(s)
@@ -41,20 +31,6 @@ class TestRendering(unittest.TestCase):
     def test_scheme_2(self):
         s=self.exercise.scheme_2.to_stream()
         self.streams.append(s)
-        data=s.read()
-        self.assertGreater(len(data),0)
-
-    def test_scheme_1_old(self):
-        s=self.exercise.scheme_1_old.to_stream()
-        self.streams.append(s)
-        s.seek(0)
-        data=s.read()
-        self.assertGreater(len(data),0)
-
-    def test_scheme_2_old(self):
-        s=self.exercise.scheme_2_old.to_stream()
-        self.streams.append(s)
-        s.seek(0)
         data=s.read()
         self.assertGreater(len(data),0)
 

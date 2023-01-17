@@ -7,7 +7,6 @@ from typing import Union,Iterable,Iterator
 from pptx import Presentation
 from pptx.slide import Slide
 from pptx.text.text import _Paragraph,_Run
-from pptx.table import Table
 from pptx.util import Cm, Inches,Emu,Pt
 from pptx.enum.dml import MSO_THEME_COLOR
 from pptx.enum.text import PP_ALIGN

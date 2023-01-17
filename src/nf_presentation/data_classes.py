@@ -143,7 +143,7 @@ class NewScheme(Scheme):
 class SingleExerciseInfo:
     """A class representing info we get for an exercise to a python object"""
     _media_fields=['video_1','video_2','animation_1','animation_2']
-    _sheme_fields=['scheme_1','scheme_2','scheme_1_old','scheme_2_old']
+    _sheme_fields=['scheme_1','scheme_2']
 
     def __init__(self, raw_data:dict):
         self.raw_data=raw_data
@@ -158,7 +158,7 @@ class SingleExerciseInfo:
     def title(self):
         return self.raw_data.get('title','')
     @property
-    def schemes(self):
+    def old_schemes(self):
         return self.raw_data.get('scheme_data',[])
     @property
     def video_1(self):
@@ -195,25 +195,19 @@ class SingleExerciseInfo:
                 'animation_1':MediaLink(...)"""
         return {field:self.raw_data.get(field) for field in self._media_fields}
     @property
-    def scheme_1_old(self):
-        return OldScheme(self.schemes[0])
-    @property
-    def scheme_2_old(self):
-        return OldScheme(self.schemes[1])
-    @property
     def scheme_1(self):
         scheme_id=self.raw_data.get('scheme_1')
         if scheme_id:
             return NewScheme(scheme_id=scheme_id)
         else:
-            return None
+            return OldScheme(svg_text=self.old_schemes[0])
     @property
     def scheme_2(self):
         scheme_id=self.raw_data.get('scheme_2')
         if scheme_id:
             return NewScheme(scheme_id=scheme_id)
         else:
-            return None
+            return OldScheme(svg_text=self.old_schemes[1])
     def get_scheme_by_name(self,name:str) -> Scheme:
         if name not in self._sheme_fields:
             logger.warn(f'attemping to get scheme with name "{name}", while allowed names are {self._sheme_fields}')
