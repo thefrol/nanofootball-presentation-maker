@@ -17,7 +17,7 @@ _default_description="""Описание:
 
 class RenderOptions:
     _media_fields=['video_1','video_2','animation_1','animation_2']
-    _scheme_priority=['scheme_1','scheme_2','scheme_1_old','scheme_2_old']
+    _scheme_priority=['scheme_1','scheme_2']
     def __init__(self,raw_data:dict):
         self.raw_data:dict=raw_data
         self.check()
@@ -82,12 +82,7 @@ class CompactRenderer(BaseRenderer):
 
         #schemes
         scheme_added=False
-
-        scheme_names=self.render_options.schemes_to_render
-        if len(scheme_names)==0:
-            scheme_names=['scheme_1_old','scheme_2_old']
-            logger.error(f'no schemes selected in render_options falling back to {scheme_names}')
-            
+           
         for scheme_name in self.render_options.schemes_to_render:
             scheme=exercise.get_scheme_by_name(scheme_name)
             if not scheme:

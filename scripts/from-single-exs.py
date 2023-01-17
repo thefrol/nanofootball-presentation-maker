@@ -6,7 +6,7 @@ render_dict={
     'video_2':True,
     'animation_1':True,
     'animation_2':True,
-    'scheme_1':True,
+    'scheme_1':False,
     'pips':'aaa'
 }
 
