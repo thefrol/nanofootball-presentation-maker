@@ -25,7 +25,7 @@ setup(
     license="MIT",
     python_requires='>3.7.0',
     package_data={
-        'nf_presentation':['*.png','*.svg','*.json']
+        'nf_presentation.assets':['*.png','*.svg','*.json']
     }
 
 )
