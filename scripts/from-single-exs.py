@@ -6,14 +6,15 @@ render_dict={
     'video_2':True,
     'animation_1':True,
     'animation_2':True,
+    'scheme_1':True,
     'pips':'aaa'
 }
 
-data=ExercisesService().get(9490).raw_data
+#data=ExercisesService().get(9490).raw_data
     
 
 nf_presentation.from_single_exercise(
-    input_data=data,
+    input_data='test',
     render_options=render_dict,
     output_file='single.pptx'
 )

@@ -1,9 +1,13 @@
+from abc import abstractmethod
+from typing import IO
+
 from .settings import (
                     EMPY_DESCRIPLION_REPLACEMENT,
                     EMPTY_TRAINER_NAME_REPLACEMENT,
                     UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
 
 from ._settings.basic import create_player_link
+from nf_presentation.scheme_renderer import SchemeRenderer, NewSchemeRenderer
 from nf_presentation.logger import logger
 
 
@@ -117,11 +121,29 @@ class MediaLink:
     def nftv_player(self):
         return create_player_link(self.nftv_id)
 
+class Scheme:
+    @abstractmethod
+    def to_stream(self)-> IO:
+        pass
 
+class OldScheme(Scheme):
+    def __init__(self, svg_text:str):
+        self.svg_text=svg_text
+    def to_stream(self) -> IO:
+        return SchemeRenderer().to_stream(self.svg_text)
+
+class NewScheme(Scheme):
+    def __init__(self, scheme_id):
+        self.scheme_id=scheme_id
+    def to_stream(self) -> IO:
+        return NewSchemeRenderer().to_stream(self.scheme_id)
+
+    
 
 class SingleExerciseInfo:
     """A class representing info we get for an exercise to a python object"""
     _media_fields=['video_1','video_2','animation_1','animation_2']
+    _sheme_fields=['scheme_1','scheme_2','scheme_1_old','scheme_2_old']
 
     def __init__(self, raw_data:dict):
         self.raw_data=raw_data
@@ -172,4 +194,29 @@ class SingleExerciseInfo:
                 'video_1':MediaLink(...),
                 'animation_1':MediaLink(...)"""
         return {field:self.raw_data.get(field) for field in self._media_fields}
-    
+    @property
+    def scheme_1_old(self):
+        return OldScheme(self.schemes[0])
+    @property
+    def scheme_2_old(self):
+        return OldScheme(self.schemes[1])
+    @property
+    def scheme_1(self):
+        scheme_id=self.raw_data.get('scheme_1')
+        if scheme_id:
+            return NewScheme(scheme_id=scheme_id)
+        else:
+            return None
+    @property
+    def scheme_2(self):
+        scheme_id=self.raw_data.get('scheme_2')
+        if scheme_id:
+            return NewScheme(scheme_id=scheme_id)
+        else:
+            return None
+    def get_scheme_by_name(self,name:str) -> Scheme:
+        if name not in self._sheme_fields:
+            logger.warn(f'attemping to get scheme with name "{name}", while allowed names are {self._sheme_fields}')
+        #TODO add a fallback if scheme not found
+        return getattr(self,name)
+

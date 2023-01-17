@@ -19,18 +19,24 @@ _default_description="""Описание:
 
 class RenderOptions:
     _media_fields=['video_1','video_2','animation_1','animation_2']
-    def __init__(self,raw_data):
-        self.raw_data=raw_data
+    _scheme_priority=['scheme_1','scheme_2','scheme_1_old','scheme_2_old']
+    def __init__(self,raw_data:dict):
+        self.raw_data:dict=raw_data
         self.check()
     @property
     def media_fields_to_render(self) -> list[str]:
         """returns a list of edia fields should be rendered to a pptx
         ['video_2','animation_1']"""
         return [field for field in self._media_fields if self.raw_data.get(field)]  # if checked as True
+    @property
+    def schemes_to_render(self):
+        return [scheme_name for scheme_name in self._scheme_priority if self.raw_data.get(scheme_name)]
     def check(self):
         #check if video or animation will be added to pptx
         if not any([self.raw_data.get(field) for field in self._media_fields]):
             logger.warn('(Render Options) no player links are marked to be added to pptx')
+        if not any(self.schemes_to_render):
+            logger.warn('(Render Options) no scheme links are marked to be added to pptx')
 
 
 
@@ -69,14 +75,28 @@ class CompactRenderer(BaseRenderer):
         
         for row in left_rows:
            left_table.append_row(*row) 
-        # left_table.append_empty_row()
-        # left_table.append_row('ссылки')
-        # #maybe exercise info should return a tuples already
 
-        s=SchemeRenderer()
-        image_stream=s.to_stream(exercise.schemes[0])
-        self._open_streams.append(image_stream)
-        slide.create_image(image_stream).at(current_layout.SCHEME_POSITION).set_size(current_layout.SCHEME_WIDTH,None)
+        #schemes
+        scheme_added=False
+        for scheme_name in self.render_options.schemes_to_render:
+            scheme=exercise.get_scheme_by_name(scheme_name)
+            if not scheme:
+                logger.warn(f'Cant add scheme "{scheme}" to slide, because it is not in the exercise data')
+                continue      
+
+            image_stream=scheme.to_stream()
+            if not image_stream:
+                logger.warn(f'cant add scheme "{scheme}" to slide, because its stream is None')
+                continue
+
+            self._open_streams.append(image_stream)
+            slide.create_image(image_stream).at(current_layout.SCHEME_POSITION).set_size(current_layout.SCHEME_WIDTH,None)
+
+            scheme_added=True
+            break
+        if not scheme_added:
+            logger.error('No scheme added to slide')
+            #TODO image fallback
 
         #add links
         links_added=False

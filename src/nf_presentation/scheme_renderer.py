@@ -1,9 +1,12 @@
 import re
+import requests
 from io import BytesIO
 
 from cairosvg import svg2png,svg2svg
 
 from .settings import svg_replacements,png_render_width,png_render_height
+from nf_presentation._settings import basic as basic_settings
+from nf_presentation.logger import logger
 
 
 class SchemeRenderer:
@@ -59,6 +62,17 @@ class SchemeRenderer:
         stream=BytesIO()
         self.render_png(svg_text=svg_text,to_file=stream)
         return stream
+
+class NewSchemeRenderer:
+    def to_stream(self,sheme_id):
+        url=basic_settings.scheme_url(sheme_id=sheme_id)
+        with requests.get(url) as resp:
+            if not resp.ok:
+                logger.error(f'Cant download scheme {sheme_id}')
+                raise RuntimeError(f'cant download {url}')
+            return BytesIO(resp.content)
+
+
     
 
 
