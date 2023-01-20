@@ -1,4 +1,4 @@
-NF_VIDEO_PLAYER_LINK='http://213.108.4.28/video/player/'
+NF_VIDEO_PLAYER_LINK='https://213.108.4.28/video/player/'
 NF_NEW_SHEME_URL='http://62.113.105.179/api/canvas-draw/v1/canvas/render?id='
 
 
