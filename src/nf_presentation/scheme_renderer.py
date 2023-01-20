@@ -45,11 +45,7 @@ class SchemeRenderer:
         svg_text: a str containing svg image
         to_file: output file can be path string or file object"""
         # step 0. get original svg
-        final_svg=svg_text
-        # step 1. fix links
-        final_svg=self._replace_links(final_svg)
-        # step 2. fix broken paramenters
-        final_svg=self._fix_strings(final_svg)
+        final_svg=self.prepare_svg(svg_text=svg_text)
         # step 3. rendering
         svg2png(
             bytestring=final_svg,
@@ -57,6 +53,17 @@ class SchemeRenderer:
             output_height=self.height,
             write_to=to_file
             )
+
+    def prepare_svg(self,svg_text:str):
+        """returning fully prepared svg string with all replacements and fixes,
+        mostry for use in debug"""
+        # step 0. get original svg
+        final_svg=svg_text
+        # step 1. fix links
+        final_svg=self._replace_links(final_svg)
+        # step 2. fix broken paramenters
+        final_svg=self._fix_strings(final_svg)
+        return final_svg
 
     def to_stream(self,svg_text) -> BytesIO:
         stream=BytesIO()

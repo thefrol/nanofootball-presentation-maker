@@ -105,8 +105,10 @@ class CompactRenderer(BaseRenderer):
 
         #add links
         links_added=False
-        links_table=slide.create_table().at(current_layout.LINKS_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
+        #links_table=slide.create_table().at(current_layout.LINKS_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
         
+
+        ## TODO extract as media links
         pb=ParagraphBuilder()
         #link_position=current_layout.LINKS_AREA
         video_counter=0
@@ -144,7 +146,8 @@ class CompactRenderer(BaseRenderer):
             #link_position=(x+x_delta,y)
 
             links_added=True
-        links_table.append_row('Ссылки',pb)
+        left_table.append_empty_row()
+        left_table.append_row('Ссылки',pb)
 
         if not links_added:
             logger.warn('No links added to presentation')
