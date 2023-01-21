@@ -65,7 +65,18 @@ svg_replacements={
     'markerheight':'markerHeight',
     'viewbox':'viewBox',
     'refx':'refX',
-    'refy':'refY'
+    'refy':'refY',
+    #fix for ellipse in rings (adding preserveration attribute where href=.../ring/022_2.svg)
+    #for red ones
+    '/ring/o22_2.svg"':'/ring/o22_2.svg" preserveAspectRatio="xMaxYMid meet"',
+    #for yellow
+    '/ring/o22_1.svg"':'/ring/o22_1.svg" preserveAspectRatio="xMaxYMid meet"',
+    #for potential othe types black, green, etc(doing it blindly)
+    '/ring/o22_0.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
+    '/ring/o22_3.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
+    '/ring/o22_4.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
+    '/ring/o22_5.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"'
+
 }
 
 png_render_width=600
