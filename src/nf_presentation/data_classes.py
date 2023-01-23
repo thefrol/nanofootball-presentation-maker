@@ -209,6 +209,9 @@ class TrainingExerciseInfo(SingleExerciseInfo):
     def animation_2(self) -> MediaLink:
         logger.warn('animation_2 field is not implemented in TrainingInfo. Returning None always')
         return None
+    @property
+    def duration(self) -> int:
+        return self.raw_data.get('duration',0)
 
 class TrainingInfo:
     def __init__(self,data:dict):
@@ -244,6 +247,20 @@ class TrainingInfo:
     def player_count(self):
         protocol=self.raw_data.get('protocol_info',[])
         return len(protocol) if len(protocol)>0 else ''
+    @property
+    def goalkeeper_count(self):
+        """returns amount of players tagged with player_info.card.ref_position.id=3"""
+        count=0
+        goalkeeper_position_id=3
+        for player in self.raw_data.get('protocol_info',[]):
+            position_id=player.get('player_info',{}).get('card',{}).get('ref_position',{}).get('id')
+            if position_id==goalkeeper_position_id: 
+                count=count+1
+        return count
+    @property
+    def duration(self):
+        """returns sum() of durations of all exercises"""
+        return sum([exercise.duration for exercise in self.exercises])
 
 
     @property

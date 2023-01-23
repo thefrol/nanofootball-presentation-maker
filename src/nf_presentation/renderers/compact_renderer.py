@@ -53,8 +53,8 @@ def prepare_training_rows(training:TrainingInfo) -> list[tuple]:
     rows.append(('ТРЕНЕР ВРАТАРЕЙ',''))
     rows.append(('КОМАНДА',training.team_name))
     rows.append(('КОЛИЧЕСТВО ИГРОКОВ',training.player_count))
-    rows.append(('ВРАТАРИ',''))
-    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',''))
+    rows.append(('ВРАТАРИ',training.goalkeeper_count))
+    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',training.duration))
 
     rows.append(()) #empty row
 
