@@ -53,7 +53,7 @@ DEFAULT_TABLE_MARK_FIRST_ROW=False  # highlights first row with alternative colo
 #DATA
 EMPY_DESCRIPLION_REPLACEMENT='Пустое описание'  # if description is empty or None
 UNKNOWN_GROUP_ID_NAME_REPLACEMENT='?'
-EMPTY_TRAINER_NAME_REPLACEMENT='ИМЯ ТРЕНЕРА НЕ ПЕРЕДАНО'
+EMPTY_TRAINER_NAME_REPLACEMENT=''
 
 
 #FILES

@@ -61,10 +61,10 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
             returns a bytes of pptx document. This data can be written to file or be send over http
     """
     if input_data=='test':
-        with assets.get_test_data() as f:
+        with assets.get_training_data() as f:
             input_data=json.load(f)
     elif input_data=='test-long':
-        with assets.get_test_data(short=False) as f:
+        with assets.get_training_data(short=False) as f:
             input_data=json.load(f)
 
     training=TrainingInfo(data=input_data)

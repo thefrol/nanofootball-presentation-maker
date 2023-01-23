@@ -111,6 +111,10 @@ class RowTableBuilder(ElementBuilder):
                 p.font.size=Pt(DEFAULT_TEXT_FONT_SIZE_PT)
                 if isinstance(cell_content,str):
                     p.text=str(cell_content)
+                elif isinstance(cell_content,int):
+                    p.text=str(cell_content)
+                elif isinstance(cell_content,float):
+                    p.text=str(cell_content)
                 elif isinstance(cell_content,ParagraphBuilder):
                     cell_content:ParagraphBuilder=cell_content
                     cell_content._build(p)

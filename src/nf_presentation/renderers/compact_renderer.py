@@ -37,16 +37,53 @@ class ExerciseRenderOptions:
         if not any(self.schemes_to_render):
             logger.warn('(Render Options) no scheme links are marked to be added to pptx')
 
+def prepare_training_rows(training:TrainingInfo) -> list[tuple]:
+    """returns a list for creating left table, mostly for feeding to create_left_table"""
+    rows=[]
+
+    #objectives
+    for objective in training.objectives:
+        rows.append((objective,))
+
+    #block_1
+    rows.append(('ДАТА',training.date))
+    rows.append(('ВРЕМЯ',training.time))
+    rows.append(('ТРЕНЕР',training.trainer_name))
+    rows.append(('ТРЕНЕР 2',''))
+    rows.append(('ТРЕНЕР ВРАТАРЕЙ',''))
+    rows.append(('КОМАНДА',training.team_name))
+    rows.append(('КОЛИЧЕСТВО ИГРОКОВ',training.player_count))
+    rows.append(('ВРАТАРИ',''))
+    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',''))
+
+    rows.append(()) #empty row
+
+    rows.append(('ВОЗРАСТ',''))
+    rows.append(('МЕСТО ЗАНЯТИЯ',''))
+    rows.append(('ОРГАНИЗАЦИЯ',''))
+
+    rows.append(()) #empty row
+
+    rows.append(('РАЗМЕР ПОЛЯ',training.field_size))
+    rows.append(('ТИПА НАГРУЗКИ',training.load))
+    rows.append(('КЛЮЧЕВЫЕ СЛОВА',training.keywords_1))
+    rows.append(('КЛЮЧЕВЫЕ СЛОВА',training.keywords_2))
+
+    return rows
+
+
+
 def create_left_table(slide:SlideBuilder,rows:list[tuple],capitalize=False,title=''):
     if capitalize:
         capitalized_rows=[]
         for row in rows:
             capitalized_rows.append((text.upper() for text in row))
-    rows=capitalized_rows
+        rows=capitalized_rows
 
     left_table=slide.create_table().at(current_layout.LEFT_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
-    left_table.append_row(title)
-    left_table.append_empty_row()
+    if title:
+        left_table.append_row(title)
+        left_table.append_empty_row()
   
     for row in rows:
        left_table.append_row(*row) 
@@ -73,7 +110,7 @@ class CompactRenderer(BaseRenderer):
         slide.create_image(rfs_logo).at(base_settings.LOGO_POSITION).set_size(base_settings.LOGO_WIDTH,None)
         slide.create_text(text).at(base_settings.NAME_POSITION)
 
-    def add_training_slide(self, training_data:TrainingInfo):
+    def add_training_slide(self, training:TrainingInfo):
         slide=self.presentation_builder.create_slide()
 
         #creating title
@@ -83,19 +120,14 @@ class CompactRenderer(BaseRenderer):
         #left table
         training_params=current_layout.TRAINING_ADDITIONAL_PARAMS
 
-        left_rows=[]
-        for block in training_params:
-            left_rows.append(()) #empty row
-            for param in block:
-                left_rows.append((param,''))
+        left_rows=prepare_training_rows(training=training)
 
-        objectives_string=','.join(training_data.objectives)                
 
         left_table=create_left_table(
                                 slide=slide,
                                 rows=left_rows,
-                                title=objectives_string,
-                                capitalize=current_layout.CAPITALIZE_ADDITIONAL_DATA
+                                title=None,
+                                capitalize=False
                                 )
 
         #schemes
@@ -171,7 +203,7 @@ class CompactRenderer(BaseRenderer):
         for media_field in render_options.media_fields_to_render:
             media=exercise.get_media(media_field)
             if media is None or not media.exist:
-                logger.error(f'[{exercise.title}]requested "{media_field}" is not in the current exercise. skipping')
+                logger.info(f'[{exercise.title}]requested "{media_field}" is not in the current exercise. skipping')
                 continue
 
 

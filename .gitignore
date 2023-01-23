@@ -16,3 +16,4 @@ src/nf_presentation/__pycache__/report_renderer.cpython-39.pyc
 .~lock.single.pptx#
 *.png
 *.svg
+.~lock.training.pptx#

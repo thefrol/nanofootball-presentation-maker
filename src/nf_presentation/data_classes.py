@@ -214,9 +214,37 @@ class TrainingInfo:
     def __init__(self,data:dict):
         self.raw_data=data
         self._exercises : list[TrainingExerciseInfo] = None
+
+    @property
+    def date(self):
+        return self.raw_data.get('event_date','')
+    @property
+    def time(self):
+        return self.raw_data.get('event_time','')
     @property
     def objectives(self) -> list[str]:
         return self.raw_data.get('objectives',[])
+    @property
+    def load(self):
+        "Нагрузка"
+        return self.raw_data.get('load_type','')
+    @property
+    def field_size(self):
+        return self.raw_data.get('field_size','')
+    @property
+    def keywords_1(self):
+        return self.raw_data.get('keywords_1','')
+    @property
+    def keywords_2(self):
+        return self.raw_data.get('keywords_2','')
+    @property
+    def team_name(self):
+        return self.raw_data.get('team_info',{}).get('name','')
+    @property
+    def player_count(self):
+        protocol=self.raw_data.get('protocol_info',[])
+        return len(protocol) if len(protocol)>0 else ''
+
 
     @property
     def exercises(self) -> list[TrainingExerciseInfo]:
@@ -227,4 +255,6 @@ class TrainingInfo:
     @property
     def trainer_name(self):
         trainer_name =self.raw_data.get('trainer')
+        if trainer_name is None:
+            logger.error(f'Trainer name not found. setting to "{EMPTY_TRAINER_NAME_REPLACEMENT}"')
         return trainer_name if trainer_name else EMPTY_TRAINER_NAME_REPLACEMENT
