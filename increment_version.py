@@ -14,12 +14,29 @@ use:
 
 """
 
+import re
+from packaging.version import parse,Version
+
 file_name='VERSION'
 
-versions:list[str]=open(file_name,'r').read().split('.')
-root,major,minor=(int(item) for item in versions)
-minor=minor+1
+with open(file_name,'r') as f:
+    raw_string=f.read()
 
-updated_version_string=f'{root}.{major}.{minor}'
+version=parse(raw_string)
+initial_version=version
+if version.is_devrelease:
+    print('this is a dev-release. incrementing only revisions')
+    dev_rev=version.dev+1
+    result_version=Version(version.base_version+'dev'+str(dev_rev))
+if not version.is_prerelease:
+    print('this is a release. incrementing only micro')
+    micro=version.micro+1
+    result_version=Version(f'{version.major}.{version.minor}.{version.micro}')
 
-open(file_name,'w').write(updated_version_string)
+result_version_string=str(result_version)
+print(f'{initial_version}->{result_version}')
+
+with open(file_name,'w') as f:
+    raw_string=f.write(result_version_string)
+
+    
