@@ -1,10 +1,11 @@
 from nf_presentation.renderers.base_renderer import BaseRenderer
-from nf_presentation.data_classes import SingleExerciseInfo
-from nf_presentation.builders import ParagraphBuilder
+from nf_presentation.data_classes import SingleExerciseInfo, TrainingInfo
+from nf_presentation.builders import ParagraphBuilder,SlideBuilder
 
 from nf_presentation._settings import compact_layout as current_layout
 import nf_presentation.settings as base_settings
 from nf_presentation.logger import logger
+from nf_presentation import assets
 
 _default_description="""Описание:
 
@@ -15,7 +16,7 @@ _default_description="""Описание:
 
 """
 
-class RenderOptions:
+class ExerciseRenderOptions:
     _media_fields=['video_1','video_2','animation_1','animation_2']
     _scheme_priority=['scheme_1','scheme_2']
     def __init__(self,raw_data:dict):
@@ -36,21 +37,77 @@ class RenderOptions:
         if not any(self.schemes_to_render):
             logger.warn('(Render Options) no scheme links are marked to be added to pptx')
 
+def create_left_table(slide:SlideBuilder,rows:list[tuple],capitalize=False,title=''):
+    if capitalize:
+        capitalized_rows=[]
+        for row in rows:
+            capitalized_rows.append((text.upper() for text in row))
+    rows=capitalized_rows
 
+    left_table=slide.create_table().at(current_layout.LEFT_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
+    left_table.append_row(title)
+    left_table.append_empty_row()
+  
+    for row in rows:
+       left_table.append_row(*row) 
+    
+    return left_table
 
 
 
 
 class CompactRenderer(BaseRenderer):
-    def __init__(self, render_options:RenderOptions):
+    def __init__(self):
         super().__init__(ratio=base_settings.PRESENTATION_RATIO)
-        self.render_options : RenderOptions = render_options
-    def add_exercise_slide(self, exercise_data:dict,additional_params:list[str]=None):
+        #self.render_options : ExerciseRenderOptions = render_options
+
+
+    def add_title_slide(self,name:str):
+
+        text=f'Итоговая работа по теме: Техническая тренировка \nАвтор: {name}'
+        slide=self.presentation_builder.create_slide()
+
+        rfs_logo=assets.get_rfs_logo()
+        self._open_streams.append(rfs_logo)
+        
+        slide.create_image(rfs_logo).at(base_settings.LOGO_POSITION).set_size(base_settings.LOGO_WIDTH,None)
+        slide.create_text(text).at(base_settings.NAME_POSITION)
+
+    def add_training_slide(self, training_data:TrainingInfo):
+        slide=self.presentation_builder.create_slide()
+
+        #creating title
+        title=slide.create_title(current_layout.TRAINING_SLIDE_TITLE).at(current_layout.TITLE_POSITION).with_size(current_layout.TITLE_SIZE)
+        title.with_foreground(current_layout.TITLE_FOREGROUND).with_background(current_layout.TITLE_BACKGROUND)
+
+        #left table
+        training_params=current_layout.TRAINING_ADDITIONAL_PARAMS
+
+        left_rows=[]
+        for block in training_params:
+            left_rows.append(()) #empty row
+            for param in block:
+                left_rows.append((param,''))
+
+        objectives_string=','.join(training_data.objectives)                
+
+        left_table=create_left_table(
+                                slide=slide,
+                                rows=left_rows,
+                                title=objectives_string,
+                                capitalize=current_layout.CAPITALIZE_ADDITIONAL_DATA
+                                )
+
+        #schemes
+
+    def add_exercise_slide(self, exercise:SingleExerciseInfo,render_options:ExerciseRenderOptions = None):
         """
         Arguments:
             additional_params: if None- data would be taken from exercise info,
                 if not - using current list of additional params"""
-        exercise=SingleExerciseInfo(raw_data=exercise_data)
+
+        if render_options is None:
+            render_options=ExerciseRenderOptions(current_layout.DEFAULT_EXERCISE_RENDER_OPTIONS)
         slide=self.presentation_builder.create_slide()
 
         title=slide.create_title(base_settings.DEFAULT_SLIDE_TITLE).at(current_layout.TITLE_POSITION).with_size(current_layout.TITLE_SIZE)
@@ -62,10 +119,8 @@ class CompactRenderer(BaseRenderer):
         right_table.append_row(description_text)
         # mayble here add default params iter
         
-        if additional_params is None:
-            left_rows=exercise.additional_params.items()
-        else:
-            left_rows=[(param,'') for param in additional_params]
+        additional_params=current_layout.EXERCISE_ADDITIONAL_PARAMS
+        left_rows=[(param,'') for param in additional_params]
 
         if current_layout.CAPITALIZE_ADDITIONAL_DATA:
             capitalized_rows=[]
@@ -83,7 +138,7 @@ class CompactRenderer(BaseRenderer):
         #schemes
         scheme_added=False
            
-        for scheme_name in self.render_options.schemes_to_render:
+        for scheme_name in render_options.schemes_to_render:
             scheme=exercise.get_scheme_by_name(scheme_name)
             if not scheme:
                 logger.warn(f'Cant add scheme "{scheme}" to slide, because it is not in the exercise data')
@@ -113,10 +168,10 @@ class CompactRenderer(BaseRenderer):
         #link_position=current_layout.LINKS_AREA
         video_counter=0
         animation_counter=0
-        for media_field in self.render_options.media_fields_to_render:
+        for media_field in render_options.media_fields_to_render:
             media=exercise.get_media(media_field)
-            if not media.exist:
-                logger.error(f'requested "{media_field}" is not in the current exercise. skipping')
+            if media is None or not media.exist:
+                logger.error(f'[{exercise.title}]requested "{media_field}" is not in the current exercise. skipping')
                 continue
 
 
@@ -150,7 +205,7 @@ class CompactRenderer(BaseRenderer):
         left_table.append_row('Ссылки',pb)
 
         if not links_added:
-            logger.warn('No links added to presentation')
+            logger.warn(f'[{exercise.title}] No links added to slide')
 
 
 

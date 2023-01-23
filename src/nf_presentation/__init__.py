@@ -17,11 +17,11 @@ import json
 import io
 from typing import Union,IO
 
-from .report_renderer import ReportRenderer
-from nf_presentation.renderers.compact_renderer import CompactRenderer,RenderOptions
-from .data_classes import TrainingInfo
+from nf_presentation.renderers.compact_renderer import CompactRenderer,ExerciseRenderOptions
+from .data_classes import TrainingInfo,SingleExerciseInfo
 from . import assets
 from nf_presentation.logger import logger
+from nf_presentation._settings import basic as basic_settings
 
 
 def return_bytes(func):
@@ -67,11 +67,12 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
         with assets.get_test_data(short=False) as f:
             input_data=json.load(f)
 
-    t=TrainingInfo(data=input_data)
-    with ReportRenderer() as renderer:
-        renderer.add_title_slide(name=t.trainer_name)
-        for exercise in t.exercises:
-            logger.debug(f'rendering {exercise.name}')
+    training=TrainingInfo(data=input_data)
+    with CompactRenderer() as renderer:
+        renderer.add_title_slide(name=training.trainer_name)
+        renderer.add_training_slide(training)
+        for exercise in training.exercises:
+            logger.debug(f'rendering {exercise.title}')
             renderer.add_exercise_slide(exercise=exercise)
         renderer.save(to=output_file)
 
@@ -89,8 +90,6 @@ def from_single_exercise(input_data : Union[dict,str], render_options: dict , ou
                 ex. {
                 scheme_1=True,
                 scheme_2=True,
-                scheme_1_old=True
-                scheme_2_old=True,
                 video_1=True,
                 ...
                 }
@@ -103,24 +102,28 @@ def from_single_exercise(input_data : Union[dict,str], render_options: dict , ou
         with assets.get_exercise_test_data() as f:
             input_data=json.load(f)
 
-    additional_params=[
-        'Этап подготовки',
-        'Часть тренировки',
-        'Тип упражнения',
-        'Продолжительность',
-        'Количество игроков',
-        'Организация',
-        'Пространство',
-        'Дозировка',
-        'Пульс',
-        'Касание мяча',
-        'Нейтральные',
-        'Расположение тренера',
-        'Выявление победителя'
-    ]
+    exercise=SingleExerciseInfo(input_data)
 
-    render_options=RenderOptions(render_options)
-    renderer=CompactRenderer(render_options=render_options)
+    if render_options is None:
+        render_options=None
+    else:
+        render_options=ExerciseRenderOptions(render_options)
+    with CompactRenderer() as renderer:
 
-    renderer.add_exercise_slide(exercise_data=input_data,additional_params=additional_params)
-    renderer.save(to=output_file)
+        renderer.add_exercise_slide(exercise,render_options=render_options)
+        renderer.save(to=output_file)
+
+
+# @return_bytes
+# def from_training(input_data : Union[dict,str], render_options: dict , output_file : Union[str,None]= None) -> bytes:
+#     if input_data=='test':
+#         with assets.get_test_data(short=True) as f:
+#             input_data=json.load(f)   
+
+#     traning=TrainingInfo(input_data)
+#     #render_options=RenderOptions(render_options)
+#     renderer=CompactRenderer()
+
+#     renderer.add_exercise_slide(exercise,render_options=render_options)
+#     renderer.save(to=output_file)        
+#     pass

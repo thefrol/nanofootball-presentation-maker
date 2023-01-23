@@ -2,7 +2,7 @@ from typing import IO
 from abc import abstractmethod
 
 from nf_presentation.builders import PresentationBuilder
-from nf_presentation.data_classes import ExerciseInfo
+from nf_presentation.data_classes import SingleExerciseInfo
 from nf_presentation.scheme_renderer import SchemeRenderer
 from nf_presentation.html_renderer import HTMLRenderer
 from nf_presentation import assets

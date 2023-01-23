@@ -41,62 +41,11 @@ class AdditionalInfo:
     def value(self):
         return self.raw_data.get('note')
 
-class ExerciseInfo:
-    def __init__(self, data:dict):
-        self.raw_data : dict = data
-        self._additionals : list[AdditionalInfo] = None
-    @property
-    def name(self):
-        return self.raw_data.get('exercise_name',{}).get('ru')
-    @property
-    def scheme_main(self):
-        return self.raw_data.get('exercise_scheme',{}).get('scheme_1')
-    @property
-    def description(self):
-        description=self.raw_data.get('description')
-        return description if description else EMPY_DESCRIPLION_REPLACEMENT
-    @property
-    def duration(self):
-        return self.raw_data.get('duration')
-    @property 
-    def additionals(self) -> list[AdditionalInfo]:
-        if self._additionals is None:
-            # refactor!
-            self._additionals=[AdditionalInfo(data) for data in self.raw_data.get('additional',[])]
-            self._additionals.insert(0,AdditionalInfo({
-                    "id": -1,
-                    "additional_name": {
-                        "en": "Duration",
-                        "ru": "Длительность"
-                    },
-                    "training_exercise_id": -1,
-                    "additional_id": -1,
-                    "note": self.duration
-                })) ##adding time
-        return self._additionals
-    @property
-    def group(self) -> GroupInfo:
-        return GroupInfo(
-            group_id=self.raw_data.get('group'),
-            order=self.raw_data.get('order'))
 
 
 
-class TrainingInfo:
-    def __init__(self,data:dict):
-        self.raw_data=data
-        self._exercises : list[ExerciseInfo] = None
 
-    @property
-    def exercises(self) -> list[ExerciseInfo]:
-        if self._exercises is None:
-            self._exercises= [ExerciseInfo(data) for data in self.raw_data.get('exercises_info')]
-        return self._exercises
 
-    @property
-    def trainer_name(self):
-        trainer_name =self.raw_data.get('trainer')
-        return trainer_name if trainer_name else EMPTY_TRAINER_NAME_REPLACEMENT
 
 
 
@@ -104,7 +53,7 @@ class TrainingInfo:
 
 class MediaLink:
     def __init__(self, raw_data):
-        self.raw_data=raw_data
+        self.raw_data:dict=raw_data
     @property
     def exist(self):
         return self.id!=-1
@@ -141,12 +90,18 @@ class NewScheme(Scheme):
     
 
 class SingleExerciseInfo:
-    """A class representing info we get for an exercise to a python object"""
+    """A class representing info we get for an exercise to a python object
+    
+    represents a data entity in nanofootball.com/exercises
+    its a bit defferent from entinity of /training/exercise"""
     _media_fields=['video_1','video_2','animation_1','animation_2']
     _sheme_fields=['scheme_1','scheme_2']
 
     def __init__(self, raw_data:dict):
         self.raw_data=raw_data
+    @property
+    def id(self):
+        return self.raw_data.get('id')
     @property
     def additional_params(self) -> dict:
         """returning exercise.additinal_params as dict, converting from list[dict]"""
@@ -161,18 +116,18 @@ class SingleExerciseInfo:
     def old_schemes(self):
         return self.raw_data.get('scheme_data',[])
     @property
-    def video_1(self):
+    def video_1(self)-> MediaLink:
          return MediaLink(self.raw_data.get('video_1'))
     @property
-    def video_2(self):
+    def video_2(self)-> MediaLink:
          return MediaLink(self.raw_data.get('video_2'))
     @property
-    def animation_1(self):
+    def animation_1(self)-> MediaLink:
          return MediaLink(self.raw_data.get('animation_1'))
     @property
-    def animation_2(self):
+    def animation_2(self) -> MediaLink:
          return MediaLink(self.raw_data.get('animation_2'))
-    def get_media(self, field_name):
+    def get_media(self, field_name) -> MediaLink:
         """returns a media link to videos
         Attributes:
             field_name:'video_1','video_2','animation_1',...
@@ -182,7 +137,7 @@ class SingleExerciseInfo:
             """
         if field_name not in self._media_fields:
             logger.warn(f'trying to get media field "{field_name}" from exercise_data, safe choices are {self._media_fields}')
-        return MediaLink(self.raw_data.get(field_name))
+        return getattr(self,field_name)
     @property
     def medias(self):
         """returns a collection of medias like video1, video2 and others"""
@@ -214,3 +169,62 @@ class SingleExerciseInfo:
         #TODO add a fallback if scheme not found
         return getattr(self,name)
 
+class TrainingExerciseInfo(SingleExerciseInfo):
+    """A class representing info we get for an exercise to a python object
+    representing a data entity in nanofootball.com/training/exercise"""
+
+    @property
+    def title(self):
+        title_=self.raw_data.get('exercise_name',{}).get('ru',None)
+        if title_ is None:
+            logger.error(f'cant get title for exercise with id={self.id}.falling back to empty title')
+            return ' '
+        else:
+            return title_
+
+    @property
+    def old_schemes(self):
+        return list(self.raw_data.get('exercise_scheme',{}).values())
+
+    @property
+    def _videos(self):
+        return self.raw_data.get('exercise_data',{}).get('videos',[])
+    @property
+    def video_1(self)-> MediaLink:
+        if len(self._videos)>0:
+            return MediaLink(self._videos[0])
+        else:
+            return None
+    @property
+    def video_2(self)-> MediaLink:
+        if len(self._videos)>1:
+            return MediaLink(self._videos[1])    
+        else:
+            return None
+    @property
+    def animation_1(self) -> MediaLink:
+        logger.warn('animation_1 field is not implemented in TrainingInfo. Returning None always')
+        return None
+    @property
+    def animation_2(self) -> MediaLink:
+        logger.warn('animation_2 field is not implemented in TrainingInfo. Returning None always')
+        return None
+
+class TrainingInfo:
+    def __init__(self,data:dict):
+        self.raw_data=data
+        self._exercises : list[TrainingExerciseInfo] = None
+    @property
+    def objectives(self) -> list[str]:
+        return self.raw_data.get('objectives',[])
+
+    @property
+    def exercises(self) -> list[TrainingExerciseInfo]:
+        if self._exercises is None:
+            self._exercises= [TrainingExerciseInfo(data) for data in self.raw_data.get('exercises_info')]
+        return self._exercises
+
+    @property
+    def trainer_name(self):
+        trainer_name =self.raw_data.get('trainer')
+        return trainer_name if trainer_name else EMPTY_TRAINER_NAME_REPLACEMENT

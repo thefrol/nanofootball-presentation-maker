@@ -26,6 +26,20 @@ class TestSigleExerciseExport(unittest.TestCase):
         data=nf_presentation.from_single_exercise(input_data='test',render_options=render_options)
         self.assertIsNotNone(data)
 
+    def test_render_with_none_options(self):
+        render_options=None
+        data=nf_presentation.from_single_exercise(input_data='test',render_options=render_options)
+        self.assertIsNotNone(data)
+
+class TestTrainingExport(unittest.TestCase):
+    def test_short(self):
+        render_options=None
+        data=nf_presentation.from_training(input_data='test')
+        self.assertIsNotNone(data)
+    def test_long(self):
+        render_options=None
+        data=nf_presentation.from_training(input_data='test-long')
+        self.assertIsNotNone(data)
 
 if __name__ == '__main__':
     unittest.main()
