@@ -73,7 +73,7 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
         renderer.add_training_slide(training)
         for exercise in training.exercises:
             logger.debug(f'rendering {exercise.title}')
-            renderer.add_exercise_slide(exercise=exercise)
+            renderer.add_exercise_slide(exercise=exercise,training=training)
         renderer.save(to=output_file)
 
 @return_bytes

@@ -2,7 +2,9 @@
 
 Thic type of layout renders a single exercise to a single slide list"""
 
-CAPITALIZE_ADDITIONAL_DATA=True  # capitalizes captions in left table
+DEFAULT_SLIDE_TITLE='Основная часть'
+
+#CAPITALIZE_ADDITIONAL_DATA=True  # capitalizes captions in left table
 
 TITLE_POSITION=(0.5,0.5)
 TITLE_SIZE=(33,1)
@@ -19,7 +21,6 @@ LEFT_TABLE_WIDTH=10.5
 
 RIGHT_TABLE_POSITION=(12.0,10.5)
 RIGHT_TABLE_WIDTH=21.5
-
 
 LINKS_TABLE_POSITION=(0.5,13.5)
 
@@ -42,46 +43,6 @@ DEFAULT_EXERCISE_RENDER_OPTIONS={
     'animation_2':True
 }
 
-EXERCISE_ADDITIONAL_PARAMS=[
-        'Этап подготовки',
-        'Часть тренировки',
-        'Тип упражнения',
-        'Продолжительность',
-        'Количество игроков',
-        'Организация',
-        'Пространство',
-        'Дозировка',
-        'Пульс',
-        'Касание мяча',
-        'Нейтральные',
-        'Расположение тренера',
-        'Выявление победителя'
-    ]
-
-
 
 TRAINING_SLIDE_TITLE='Цели тренировочного занятия'
-TRAINING_ADDITIONAL_PARAMS=[
-    [
-        'дата',
-        "время",
-        "тренер",
-        "тренер 2",
-        "тренер вратарей",
-        "команда",
-        "количество игроков",
-        "вратари",
-        "продолжительность"
-    ],
-    [
-        'возраст',
-        "место занятия",
-        "организация"
-    ],
-    [
-        "размер поля",
-        "тип нагрузки",
-        "ключевые слова",
-        "ключевые слова"
-    ]
-]
+

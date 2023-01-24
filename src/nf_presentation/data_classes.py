@@ -5,6 +5,7 @@ from .settings import (
                     EMPY_DESCRIPLION_REPLACEMENT,
                     EMPTY_TRAINER_NAME_REPLACEMENT,
                     UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
+from nf_presentation._settings import data as data_settings
 
 from ._settings.basic import create_player_link
 from nf_presentation.scheme_renderer import SchemeRenderer, NewSchemeRenderer
@@ -217,7 +218,9 @@ class TrainingInfo:
     def __init__(self,data:dict):
         self.raw_data=data
         self._exercises : list[TrainingExerciseInfo] = None
-
+    @property
+    def id(self):
+        return self.raw_data.get('id')
     @property
     def date(self):
         return self.raw_data.get('event_date','')
@@ -226,7 +229,22 @@ class TrainingInfo:
         return self.raw_data.get('event_time','')
     @property
     def objectives(self) -> list[str]:
+        """returning an array of objectives containing main_objective and tasks"""
         return self.raw_data.get('objectives',[])
+    @property
+    def main_objective(self) -> str:
+        if len(self.objectives)>0:
+            return self.objectives[0]
+        else:
+            logger.error(f'training[{self.id}] cant get main_objective. amount of objectives is lesser that 1. returning {data_settings.TRAINING_DEFAULT_MAIN_OBJECTIVE}')
+            return None
+    @property
+    def tasks(self)-> list[str]:
+        if len(self.objectives)>1:
+            return self.objectives[1:]
+        else:
+            logger.error(f'training[{self.id}] cant get tasks. amount of objectives is lesser that 2. returning {data_settings.TRAINING_DEFAULT_TASKS}')
+            return None
     @property
     def load(self):
         "Нагрузка"

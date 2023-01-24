@@ -37,13 +37,51 @@ class ExerciseRenderOptions:
         if not any(self.schemes_to_render):
             logger.warn('(Render Options) no scheme links are marked to be added to pptx')
 
+
+def create_links_paragraph(exercise:SingleExerciseInfo,render_options:ExerciseRenderOptions) -> ParagraphBuilder:
+            #add links
+        links_added=False
+        #links_table=slide.create_table().at(current_layout.LINKS_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
+        
+
+        ## TODO extract as media links
+        pb=ParagraphBuilder()
+        #link_position=current_layout.LINKS_AREA
+        video_counter=0
+        animation_counter=0
+        for media_field in render_options.media_fields_to_render:
+            media=exercise.get_media(media_field)
+            if media is None or not media.exist:
+                logger.info(f'[{exercise.title}]requested "{media_field}" is not in the current exercise. skipping')
+                continue
+
+            player_url=exercise.get_media(media_field).nftv_player
+            is_animation='animation' in media_field
+            if is_animation:
+                animation_counter=animation_counter+1
+            else:
+                video_counter=video_counter+1
+            
+            pb.append_link(
+                link_text=f"Анимация {animation_counter}" if is_animation else f"Видео {video_counter}",
+                href=player_url)
+            pb.append_text(' ')
+
+            links_added=True
+
+        if not links_added:
+            logger.warn(f'[{exercise.title}] No links added to slide')
+        return pb
+
 def prepare_training_rows(training:TrainingInfo) -> list[tuple]:
     """returns a list for creating left table, mostly for feeding to create_left_table"""
     rows=[]
 
     #objectives
-    for objective in training.objectives:
-        rows.append((objective,))
+    for task in training.tasks:
+        rows.append((task,))
+
+    rows.append(()) #empty row
 
     #block_1
     rows.append(('ДАТА',training.date))
@@ -71,6 +109,41 @@ def prepare_training_rows(training:TrainingInfo) -> list[tuple]:
 
     return rows
 
+def prepare_exercise_rows(exercise:SingleExerciseInfo,training:TrainingInfo,render_options:SingleExerciseInfo) -> list[tuple]:
+    """returns a list for creating left table, mostly for feeding to create_left_table"""
+    rows=[]
+
+    #titles
+    if training is not None:
+        for task in training.tasks:
+            rows.append((task,))
+                #maybe if training is none we should add two empty rows
+    rows.append((exercise.title,))
+
+    rows.append(()) #empty row
+
+    #main block
+    rows.append(('ЭТАП ПОДГОТОВКИ',''))
+    rows.append(('ЧАСТЬ ТРЕНИРОВКИ',''))
+    rows.append(('ТИП УПРАЖНЕНИЯ',''))
+    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',''))
+    rows.append(('КОЛИЧЕСТВО ИГРОКОВ',''))  # кстати, вот это откуда брать из тренировки или из упражнения?
+    rows.append(('ОРГАНИЗАЦИЯ',''))
+    rows.append(('ПРОСТРАНСТВО',''))
+    rows.append(('ДОЗИРОВКА',''))
+    rows.append(('ПУЛЬС',''))
+    rows.append(('КАСАНИЕ МЯЧА',''))
+    rows.append(('НЕЙТРАЛЬНЫЕ',''))
+    rows.append(('РАСПОЛОЖЕНИЕ ТРЕНЕРА',''))
+    rows.append(('ВЫЯВЛЕНИЕ ПОБЕДИТЕЛЯ',''))
+
+    rows.append(()) #empty row
+
+    #links
+    links=create_links_paragraph(exercise=exercise,render_options=render_options)
+    rows.append(('ССЫЛКИ',links))
+
+    return rows
 
 
 def create_left_table(slide:SlideBuilder,rows:list[tuple],capitalize=False,title=''):
@@ -90,7 +163,10 @@ def create_left_table(slide:SlideBuilder,rows:list[tuple],capitalize=False,title
     
     return left_table
 
-
+def create_title(slide:SlideBuilder,title:str):
+    title=slide.create_title(title).at(current_layout.TITLE_POSITION).with_size(current_layout.TITLE_SIZE)
+    title.with_foreground(current_layout.TITLE_FOREGROUND).with_background(current_layout.TITLE_BACKGROUND)
+    return title
 
 
 class CompactRenderer(BaseRenderer):
@@ -111,15 +187,19 @@ class CompactRenderer(BaseRenderer):
         slide.create_text(text).at(base_settings.NAME_POSITION)
 
     def add_training_slide(self, training:TrainingInfo):
+        """
+        adds a new slide to current presentation, with training overview
+
+        Arguments:
+            training: 
+                a training data to be added to slide, like tasks, loads and players
+            """
         slide=self.presentation_builder.create_slide()
 
         #creating title
-        title=slide.create_title(current_layout.TRAINING_SLIDE_TITLE).at(current_layout.TITLE_POSITION).with_size(current_layout.TITLE_SIZE)
-        title.with_foreground(current_layout.TITLE_FOREGROUND).with_background(current_layout.TITLE_BACKGROUND)
+        title=create_title(slide,title=training.main_objective)
 
         #left table
-        training_params=current_layout.TRAINING_ADDITIONAL_PARAMS
-
         left_rows=prepare_training_rows(training=training)
 
 
@@ -132,18 +212,29 @@ class CompactRenderer(BaseRenderer):
 
         #schemes
 
-    def add_exercise_slide(self, exercise:SingleExerciseInfo,render_options:ExerciseRenderOptions = None):
+    def add_exercise_slide(self,
+            exercise:SingleExerciseInfo,
+            render_options : ExerciseRenderOptions = None,
+            training:TrainingInfo = None):
         """
+        adds a new slide to current presentation, with exercise schemes and videos and othe info
+
         Arguments:
-            additional_params: if None- data would be taken from exercise info,
-                if not - using current list of additional params"""
+            exercise: SingeExerciseInfo
+                a exercise to render as a slide
+            [Optional] render_options: ExerciseRenderOptions
+                a class contating options like to akk scheme1 or not, to add links or not
+                how the exercise slide would look like
+            [Optional] training: 
+                a training data to be added to slide, like tasks of training
+            """
 
         if render_options is None:
             render_options=ExerciseRenderOptions(current_layout.DEFAULT_EXERCISE_RENDER_OPTIONS)
         slide=self.presentation_builder.create_slide()
 
-        title=slide.create_title(base_settings.DEFAULT_SLIDE_TITLE).at(current_layout.TITLE_POSITION).with_size(current_layout.TITLE_SIZE)
-        title.with_foreground(current_layout.TITLE_FOREGROUND).with_background(current_layout.TITLE_BACKGROUND)
+        #creating title
+        title=create_title(slide,title=current_layout.DEFAULT_SLIDE_TITLE)
 
         #decription_text=HTMLRenderer().render(exercise.description)
         description_text=_default_description
@@ -151,21 +242,14 @@ class CompactRenderer(BaseRenderer):
         right_table.append_row(description_text)
         # mayble here add default params iter
         
-        additional_params=current_layout.EXERCISE_ADDITIONAL_PARAMS
-        left_rows=[(param,'') for param in additional_params]
+        left_rows=prepare_exercise_rows(exercise=exercise,training=training,render_options=render_options)
 
-        if current_layout.CAPITALIZE_ADDITIONAL_DATA:
-            capitalized_rows=[]
-            for row in left_rows:
-                capitalized_rows.append((text.upper() for text in row))
-            left_rows=capitalized_rows
-
-        left_table=slide.create_table().at(current_layout.LEFT_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
-        left_table.append_row(exercise.title)
-        left_table.append_empty_row()
-        
-        for row in left_rows:
-           left_table.append_row(*row) 
+        create_left_table(
+            slide=slide,
+            rows=left_rows,
+            capitalize=False,
+            title=None
+            )
 
         #schemes
         scheme_added=False
@@ -190,54 +274,9 @@ class CompactRenderer(BaseRenderer):
             logger.error('No scheme added to slide. ')
             #TODO image fallback
 
-        #add links
-        links_added=False
-        #links_table=slide.create_table().at(current_layout.LINKS_TABLE_POSITION).with_width(current_layout.LEFT_TABLE_WIDTH)
-        
-
-        ## TODO extract as media links
-        pb=ParagraphBuilder()
-        #link_position=current_layout.LINKS_AREA
-        video_counter=0
-        animation_counter=0
-        for media_field in render_options.media_fields_to_render:
-            media=exercise.get_media(media_field)
-            if media is None or not media.exist:
-                logger.info(f'[{exercise.title}]requested "{media_field}" is not in the current exercise. skipping')
-                continue
 
 
-            player_url=exercise.get_media(media_field).nftv_player
-            is_animation='animation' in media_field
-            if is_animation:
-                animation_counter=animation_counter+1
-            else:
-                video_counter=video_counter+1
-            
-            
 
-            pb.append_link(
-                link_text=f"Анимация {animation_counter}" if is_animation else f"Видео {video_counter}",
-                href=player_url)
-            pb.append_text(' ')
-
-            
-
-            #image_file=current_layout.LINKS_ANIMATION_ICON_FILENAME if is_animation else current_layout.LINKS_VIDEO_ICON_FILENAME
-            #image_stream=assets.convert_to_png(filename=image_file)
-            #self.track_stream(image_stream)
-            #slide.create_image(image_file=image_stream).at(link_position).with_size(current_layout.LINKS_IMAGE_SIZE).with_href(player_url)
-
-            #x_delta,_=current_layout.LINKS_IMAGE_SIZE
-            #x,y=link_position
-            #link_position=(x+x_delta,y)
-
-            links_added=True
-        left_table.append_empty_row()
-        left_table.append_row('Ссылки',pb)
-
-        if not links_added:
-            logger.warn(f'[{exercise.title}] No links added to slide')
 
 
 
