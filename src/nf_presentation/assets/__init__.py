@@ -1,5 +1,6 @@
 import importlib.resources as pkg_resources
 from io import BytesIO
+import json
 from nf_presentation.logger import logger
 
 from cairosvg import svg2png
@@ -9,10 +10,19 @@ from nf_presentation.settings import RFS_LOGO_FILE_NAME
 def get_rfs_logo():
     return pkg_resources.open_binary(__package__, RFS_LOGO_FILE_NAME)
 
-def get_training_data(short=True) -> dict:
-    if short:
-        logger.warn('get_training_data(short=True) not implemented yet, returning long training data')
-    resource_path= 'training_data.json' #if short else 'training_data.json'
+def get_as_json(name=''):
+    """returns a dict of asset f'{name}.json' passed thru json.load()"""
+    resource_path=f'{name}.json'
+    with pkg_resources.open_text(__package__, resource_path,encoding='utf8') as p:
+        return json.load(p)
+
+
+def get_training_data(suffix=None) -> dict:
+    resource_path= 'training_data_2.json'
+    return pkg_resources.open_text(__package__, resource_path,encoding='utf8')
+
+def get_event_data() -> dict:
+    resource_path= 'event_data.json' #if short else 'training_data.json'
     return pkg_resources.open_text(__package__, resource_path,encoding='utf8')
 
 def get_exercise_test_data() -> dict:

@@ -3,6 +3,8 @@
 Thic type of layout renders a single exercise to a single slide list"""
 
 DEFAULT_SLIDE_TITLE='Основная часть'
+DEFAULT_MAIN_OBJECTIVE='Основная цель'
+DEFAULT_TASKS=['Задача 1', 'Задача 2']
 
 #CAPITALIZE_ADDITIONAL_DATA=True  # capitalizes captions in left table
 

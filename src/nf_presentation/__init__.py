@@ -46,11 +46,10 @@ def return_bytes(func):
 
 @return_bytes
 def from_training(input_data:dict,output_file:Union[str,None] =  None):
-    """A function creating a pptx file from giant dict request from Nanofootball server
+    """A function creating a pptx file from training object from Nanofootball server
     Arguments:
         input_data: dict
-            'test' - use a test data(2 exercises)
-            'test-long' - use a long test data(6 exercises)
+            'test' - use a test data
             a dict-like object containing server request for making a pptx file
         output_file: str|None
             a destination for rendering pptx, may be a string for saving locally,
@@ -75,6 +74,41 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
             logger.debug(f'rendering {exercise.title}')
             renderer.add_exercise_slide(exercise=exercise,training=training)
         renderer.save(to=output_file)
+
+@return_bytes
+def from_event(input_data:dict,output_file:Union[str,None] =  None):
+    """A function creating a pptx file from event object from Nanofootball server
+    Arguments:
+        input_data: dict
+            'test' - use a test data(2 exercises)
+            a dict-like object containing server request for making a pptx file
+        output_file: str|None
+            a destination for rendering pptx, may be a string for saving locally,
+            
+
+    Output:
+        Byte-array 
+            returns a bytes of pptx document. This data can be written to file or be send over http
+    """
+    event_data=input_data
+
+    if event_data=='test':
+        with assets.get_event_data() as f:
+            event_data:dict=json.load(f)
+    
+    if event_data.get('training') is None:
+        logger.error('Event contains no training')
+    
+    training_data=event_data.get('training')
+    training=TrainingInfo(raw_data=training_data)
+    with CompactRenderer() as renderer:
+        renderer.add_title_slide(name=training.trainer_name)
+        renderer.add_training_slide(training)
+        for exercise in training.exercises:
+            logger.debug(f'rendering {exercise.title}')
+            renderer.add_exercise_slide(exercise=exercise,training=training)
+        renderer.save(to=output_file)
+
 
 @return_bytes
 def from_single_exercise(input_data : Union[dict,str], render_options: dict , output_file : Union[str,None]= None) -> bytes:
@@ -113,17 +147,3 @@ def from_single_exercise(input_data : Union[dict,str], render_options: dict , ou
         renderer.add_exercise_slide(exercise,render_options=render_options)
         renderer.save(to=output_file)
 
-
-# @return_bytes
-# def from_training(input_data : Union[dict,str], render_options: dict , output_file : Union[str,None]= None) -> bytes:
-#     if input_data=='test':
-#         with assets.get_test_data(short=True) as f:
-#             input_data=json.load(f)   
-
-#     traning=TrainingInfo(input_data)
-#     #render_options=RenderOptions(render_options)
-#     renderer=CompactRenderer()
-
-#     renderer.add_exercise_slide(exercise,render_options=render_options)
-#     renderer.save(to=output_file)        
-#     pass

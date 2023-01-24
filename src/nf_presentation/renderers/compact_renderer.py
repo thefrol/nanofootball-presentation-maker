@@ -78,7 +78,13 @@ def prepare_training_rows(training:TrainingInfo) -> list[tuple]:
     rows=[]
 
     #objectives
-    for task in training.tasks:
+    if training.tasks is not None:
+        tasks=training.tasks
+    else:
+        logger.warn(f'{training}: using default tasks on render {current_layout.DEFAULT_TASKS}')
+        tasks=current_layout.DEFAULT_TASKS
+
+    for task in tasks:
         rows.append((task,))
 
     rows.append(()) #empty row
@@ -117,9 +123,14 @@ def prepare_exercise_rows(exercise:SingleExerciseInfo,training:TrainingInfo,rend
 
     #titles
     if training is not None:
-        for task in training.tasks:
+        if training.tasks is not None:
+            tasks=training.tasks
+        else:
+            logger.warn(f'{training}: using default tasks on render {current_layout.DEFAULT_TASKS}')
+            tasks=current_layout.DEFAULT_TASKS
+
+        for task in tasks:
             rows.append((task,))
-                #maybe if training is none we should add two empty rows
     rows.append((exercise.title,))
 
     rows.append(()) #empty row
@@ -199,18 +210,22 @@ class CompactRenderer(BaseRenderer):
         slide=self.presentation_builder.create_slide()
 
         #creating title
-        title=create_title(slide,title=training.main_objective)
+        if training.main_objective is not None:
+            title=training.main_objective
+        else:
+            logger.warn(f'{training} cant get main objective, using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
+            title=current_layout.DEFAULT_MAIN_OBJECTIVE
+
+        create_title(slide,title=title)
 
         #left table
         left_rows=prepare_training_rows(training=training)
 
-
-        left_table=create_left_table(
-                                slide=slide,
-                                rows=left_rows,
-                                title=None,
-                                capitalize=False
-                                )
+        create_left_table(
+                slide=slide,
+                rows=left_rows,
+                title=None,
+                capitalize=False)
 
         #schemes
 

@@ -115,6 +115,9 @@ class RowTableBuilder(ElementBuilder):
                     p.text=str(cell_content)
                 elif isinstance(cell_content,float):
                     p.text=str(cell_content)
+                elif cell_content is None:
+                    logger.warning(f'Cell value is None. Replaced to ""')
+                    p.text=''
                 elif isinstance(cell_content,ParagraphBuilder):
                     cell_content:ParagraphBuilder=cell_content
                     cell_content._build(p)
