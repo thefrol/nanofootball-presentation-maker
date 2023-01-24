@@ -67,7 +67,7 @@ def from_training(input_data:dict,output_file:Union[str,None] =  None):
         with assets.get_training_data(short=False) as f:
             input_data=json.load(f)
 
-    training=TrainingInfo(data=input_data)
+    training=TrainingInfo(raw_data=input_data)
     with CompactRenderer() as renderer:
         renderer.add_title_slide(name=training.trainer_name)
         renderer.add_training_slide(training)

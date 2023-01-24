@@ -11,7 +11,87 @@ from ._settings.basic import create_player_link
 from nf_presentation.scheme_renderer import SchemeRenderer, NewSchemeRenderer
 from nf_presentation.logger import logger
 
+class DictWrapper:
+    def __init__(self, raw_data:dict):
+        self.raw_data=raw_data
 
+    # maybe this decorators should be plkaced here, inside a class
+    # @from_field, from_raw_dict
+
+
+def from_field(field_name:str=None,default=None,warn_if_none:str=None):
+    """a decorator for DictWrapperClass
+    creates a property returning self.raw_data['field_name']
+
+    [optional]field_name: str
+        a field name to extract
+    [optional]default: any
+        a default return if cant get the field
+    [optional]warn: str
+        a warning message if attempting to return none
+    
+    use:
+    class Exercise(DictWrapper)
+        @from_field('id')
+        def my_id(self):
+            pass
+    
+    ex=Exercise(data)
+    print(ex.id)  # returns data['id'] / ex.raw_data['id']"""
+    def decorator(func):
+        nonlocal field_name,default
+        @property
+        def callee(self:DictWrapper, *args,**kwargs):
+            nonlocal field_name,default,func
+            if args or kwargs:
+                logger.warn('@from_field receives arguments more than self')
+
+            #testing if classes configured ok, causes slow down ;(                
+            try:
+                if func(self,*args,**kwargs):
+                    logger.warn(f'@from_field a wrapped property {self.__class__.__name__}.{func.__name__} attemps to return something, maybe class configured badly. try \n@from_field()\n    def field(self): pass')
+            except Exception as e:
+                logger.warn(f'@from_field a wrapped property {self.__class__.__name__}.{func.__name__} causes exception\n{e} \n, maybe class configured badly. try \n@from_field()\n    def field(self): pass')
+
+            if field_name is None:
+                field_name=func.__name__
+            value=self.raw_data.get(field_name)
+            if value is None:
+                if warn_if_none:
+                    logger.warning(f'{self}: {warn_if_none}. returning "{default}"')
+                value=default
+            return value
+        return callee
+    return decorator
+
+def from_raw_data(func):
+    """a decorator for DictWrapperClass
+    creates a property returning self.raw_data[decorated_function_name]
+
+    default: any
+        a default return if cant get the field
+    
+    use:
+    class Exercise(DictWrapper)
+        @from_raw_data
+        def my_id(self):
+            pass
+    
+    ex=Exercise(data)
+    print(ex.id)  # returns data['id'] / ex.raw_data['id']"""
+    @from_field(func.__name__)
+    def callee(self):
+        pass
+    return callee
+
+#some TODO's
+# if ne need a path a decorator can be a class returning a class so we line
+# from_field('players').from_dict('name') etc
+#
+# or it can be like a argument or a stack of decorators
+#
+# ALSO:
+# i would like to try a laziness wrapper creating a lazy field and if needed filling added with items of some type
 
 class GroupInfo:
     """a class representing a position of exercise, in A1, A2, A3 B3 and others"""
@@ -204,33 +284,54 @@ class TrainingExerciseInfo(SingleExerciseInfo):
             return None
     @property
     def animation_1(self) -> MediaLink:
-        logger.warn('animation_1 field is not implemented in TrainingInfo. Returning None always')
+        logger.warn(f'{self}: animation_1 field is not implemented in TrainingExerciseInfo. Returning None always')
         return None
     @property
     def animation_2(self) -> MediaLink:
-        logger.warn('animation_2 field is not implemented in TrainingInfo. Returning None always')
+        logger.warn(f'{self}: animation_2 field is not implemented in TrainingExerciseInfo. Returning None always')
         return None
     @property
     def duration(self) -> int:
         return self.raw_data.get('duration',0)
 
-class TrainingInfo:
-    def __init__(self,data:dict):
-        self.raw_data=data
+    @from_field('group',-1)
+    def group_id(self): pass
+
+    @property
+    def group_name(self):
+        return data_settings.EXERCISE_GROUP_NAME_BY_ID.get(self.group_id,data_settings.EXERCISE_GROUP_NAME_UNKNOWN)
+    @from_raw_data
+    def order(self): pass # order of exercise in group
+    
+    @property
+    def prefix(self) -> str:
+        """a prefix like A1,B2"""
+        return f'{self.group_name}{self.order}'
+    
+    @from_raw_data
+    def duration(self): pass
+    
+    def __str__(self):
+        return f"[{self.title}]"
+
+class TrainingInfo(DictWrapper):
+    def __init__(self,raw_data:dict):
+        super().__init__(raw_data=raw_data)
         self._exercises : list[TrainingExerciseInfo] = None
-    @property
-    def id(self):
-        return self.raw_data.get('id')
-    @property
-    def date(self):
-        return self.raw_data.get('event_date','')
-    @property
-    def time(self):
-        return self.raw_data.get('event_time','')
-    @property
+
+    @from_field('event_id',default='unknown_id')
+    def id(self): pass
+
+    @from_field('event_date',default='')
+    def date(self) -> str: pass
+    
+    @from_field('event_time',default='')
+    def time(self) -> str: pass
+
+    @from_field(default=[])
     def objectives(self) -> list[str]:
         """returning an array of objectives containing main_objective and tasks"""
-        return self.raw_data.get('objectives',[])
+        pass
     @property
     def main_objective(self) -> str:
         if len(self.objectives)>0:
@@ -245,19 +346,18 @@ class TrainingInfo:
         else:
             logger.error(f'training[{self.id}] cant get tasks. amount of objectives is lesser that 2. returning {data_settings.TRAINING_DEFAULT_TASKS}')
             return None
-    @property
+    @from_field('load_type',default='')
     def load(self):
-        "Нагрузка"
-        return self.raw_data.get('load_type','')
-    @property
-    def field_size(self):
-        return self.raw_data.get('field_size','')
-    @property
-    def keywords_1(self):
-        return self.raw_data.get('keywords_1','')
-    @property
-    def keywords_2(self):
-        return self.raw_data.get('keywords_2','')
+        "Нагрузка" 
+        pass
+
+    @from_raw_data
+    def field_size(self): pass
+    @from_raw_data
+    def keywords_1(self): pass
+    @from_raw_data
+    def keywords_2(self): pass
+
     @property
     def team_name(self):
         return self.raw_data.get('team_info',{}).get('name','')
@@ -287,9 +387,9 @@ class TrainingInfo:
             self._exercises= [TrainingExerciseInfo(data) for data in self.raw_data.get('exercises_info')]
         return self._exercises
 
-    @property
+    @from_field('trainer_name',default=EMPTY_TRAINER_NAME_REPLACEMENT,warn_if_none='trainer name not found')
     def trainer_name(self):
-        trainer_name =self.raw_data.get('trainer')
-        if trainer_name is None:
-            logger.error(f'Trainer name not found. setting to "{EMPTY_TRAINER_NAME_REPLACEMENT}"')
-        return trainer_name if trainer_name else EMPTY_TRAINER_NAME_REPLACEMENT
+        pass
+    
+    def __str__(self):
+        return f'training[id={self.id}]'

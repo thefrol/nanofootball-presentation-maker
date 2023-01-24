@@ -113,6 +113,8 @@ def prepare_exercise_rows(exercise:SingleExerciseInfo,training:TrainingInfo,rend
     """returns a list for creating left table, mostly for feeding to create_left_table"""
     rows=[]
 
+    duration=getattr(exercise,'duration','')
+
     #titles
     if training is not None:
         for task in training.tasks:
@@ -126,7 +128,7 @@ def prepare_exercise_rows(exercise:SingleExerciseInfo,training:TrainingInfo,rend
     rows.append(('ЭТАП ПОДГОТОВКИ',''))
     rows.append(('ЧАСТЬ ТРЕНИРОВКИ',''))
     rows.append(('ТИП УПРАЖНЕНИЯ',''))
-    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',''))
+    rows.append(('ПРОДОЛЖИТЕЛЬНОСТЬ',duration))
     rows.append(('КОЛИЧЕСТВО ИГРОКОВ',''))  # кстати, вот это откуда брать из тренировки или из упражнения?
     rows.append(('ОРГАНИЗАЦИЯ',''))
     rows.append(('ПРОСТРАНСТВО',''))
