@@ -98,6 +98,7 @@ def from_event(input_data:dict,output_file:Union[str,None] =  None):
     
     if event_data.get('training') is None:
         logger.error('Event contains no training')
+        return None
     
     training_data=event_data.get('training')
     training=TrainingInfo(raw_data=training_data)
