@@ -7,14 +7,8 @@ import nf_presentation.settings as base_settings
 from nf_presentation.logger import logger
 from nf_presentation import assets
 
-_default_description="""Описание:
 
 
-
-Тренерские акценты:
-
-
-"""
 
 class ExerciseRenderOptions:
     _media_fields=['video_1','video_2','animation_1','animation_2']
@@ -227,7 +221,10 @@ class CompactRenderer(BaseRenderer):
                 title=None,
                 capitalize=False)
 
-        #schemes
+        #right side
+        description_text=current_layout.DEFAULT_TRAINING_DESCRIPTION
+        right_table=slide.create_table().at(current_layout.SCHEME_POSITION).with_width(current_layout.RIGHT_TABLE_WIDTH)
+        right_table.append_row(description_text)
 
     def add_exercise_slide(self,
             exercise:SingleExerciseInfo,
@@ -251,10 +248,18 @@ class CompactRenderer(BaseRenderer):
         slide=self.presentation_builder.create_slide()
 
         #creating title
-        title=create_title(slide,title=current_layout.DEFAULT_SLIDE_TITLE)
+        if training is None:
+            title=current_layout.DEFAULT_SLIDE_TITLE
+        else:
+            if training.main_objective is not None:
+                title=training.main_objective
+            else:
+                logger.warn(f'{training} cant get main objective, using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
+                title=current_layout.DEFAULT_MAIN_OBJECTIVE
+        create_title(slide,title=title)
 
         #decription_text=HTMLRenderer().render(exercise.description)
-        description_text=_default_description
+        description_text=current_layout.DEFAULT_EXERCISE_DESCRIPTION
         right_table=slide.create_table().at(current_layout.RIGHT_TABLE_POSITION).with_width(current_layout.RIGHT_TABLE_WIDTH)
         right_table.append_row(description_text)
         # mayble here add default params iter

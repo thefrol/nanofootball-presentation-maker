@@ -26,15 +26,28 @@ RIGHT_TABLE_WIDTH=21.5
 
 LINKS_TABLE_POSITION=(0.5,13.5)
 
-# LINKS_TITLE_POSITION=(0.5,13.5)
-# LINKS_AREA=(2.5,13.5)
-# LINKS_IMAGE_SIZE=(1,1)
-# LINKS_VIDEO_ICON_FILENAME='movie_google_icon.svg'
-# LINKS_ANIMATION_ICON_FILENAME='animation_google_icon.svg'
+DEFAULT_EXERCISE_DESCRIPTION="""Описание:
 
 
-#PARAMS
 
+Тренерские акценты:
+
+
+"""
+
+DEFAULT_TRAINING_DESCRIPTION="""Оргинизация:
+
+Соответствие содержания теме занятия:
+
+Коучинг:
+
+Реалистичность:
+
+Интенсивность:
+
+Польза для игроков: 
+
+"""
 
 DEFAULT_EXERCISE_RENDER_OPTIONS={
     'scheme_1':True,
