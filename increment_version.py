@@ -31,7 +31,7 @@ if version.is_devrelease:
 if not version.is_prerelease:
     print('this is a release. incrementing only micro')
     micro=version.micro+1
-    result_version=Version(f'{version.major}.{version.minor}.{version.micro}')
+    result_version=Version(f'{version.major}.{version.minor}.{micro}')
 
 result_version_string=str(result_version)
 print(f'{initial_version}->{result_version}')
