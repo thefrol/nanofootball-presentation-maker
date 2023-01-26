@@ -35,7 +35,7 @@ DEFAULT_EXERCISE_DESCRIPTION="""Описание:
 
 """
 
-DEFAULT_TRAINING_DESCRIPTION="""Оргинизация:
+DEFAULT_TRAINING_DESCRIPTION="""Оргaнизация:
 
 Соответствие содержания теме занятия:
 
