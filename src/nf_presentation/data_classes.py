@@ -2,7 +2,6 @@ from abc import abstractmethod
 from typing import IO
 
 from .settings import (
-                    EMPY_DESCRIPLION_REPLACEMENT,
                     EMPTY_TRAINER_NAME_REPLACEMENT,
                     UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
 from nf_presentation._settings import data as data_settings
@@ -11,15 +10,16 @@ from ._settings.basic import create_player_link
 from nf_presentation.scheme_renderer import SchemeRenderer, NewSchemeRenderer
 from nf_presentation.logger import logger
 
+
 class DictWrapper:
-    def __init__(self, raw_data:dict):
-        self.raw_data=raw_data
+    def __init__(self, raw_data: dict):
+        self.raw_data = raw_data
 
     # maybe this decorators should be plkaced here, inside a class
     # @from_field, from_raw_dict
 
 
-def from_field(field_name:str=None,default=None,warn_if_none:str=None):
+def from_field(field_name: str = None, default=None, warn_if_none: str = None):
     """a decorator for DictWrapperClass
     creates a property returning self.raw_data['field_name']
 
@@ -29,40 +29,52 @@ def from_field(field_name:str=None,default=None,warn_if_none:str=None):
         a default return if cant get the field
     [optional]warn: str
         a warning message if attempting to return none
-    
+
     use:
     class Exercise(DictWrapper)
         @from_field('id')
         def my_id(self):
             pass
-    
+
     ex=Exercise(data)
     print(ex.id)  # returns data['id'] / ex.raw_data['id']"""
     def decorator(func):
-        nonlocal field_name,default
+        nonlocal field_name, default
+
         @property
-        def callee(self:DictWrapper, *args,**kwargs):
-            nonlocal field_name,default,func
+        def callee(self: DictWrapper, *args, **kwargs):
+            nonlocal field_name, default, func
             if args or kwargs:
                 logger.warn('@from_field receives arguments more than self')
 
-            #testing if classes configured ok, causes slow down ;(                
+            # testing if classes configured ok, causes slow down ;(       
             try:
-                if func(self,*args,**kwargs):
-                    logger.warn(f'@from_field a wrapped property {self.__class__.__name__}.{func.__name__} attemps to return something, maybe class configured badly. try \n@from_field()\n    def field(self): pass')
+                if func(self, *args, **kwargs):
+                    logger.warn('@from_field a wrapped property '
+                                + f'{self.__class__.__name__}.{func.__name__}'
+                                + 'attemps to return something, maybe class'
+                                + 'configured badly. try'
+                                + "\n@from_field()"
+                                + "\n    def field(self): pass")
             except Exception as e:
-                logger.warn(f'@from_field a wrapped property {self.__class__.__name__}.{func.__name__} causes exception\n{e} \n, maybe class configured badly. try \n@from_field()\n    def field(self): pass')
+                logger.warn('@from_field a wrapped property '
+                            + f'{self.__class__.__name__}.{func.__name__} '
+                            + f'causes exception\n{e} \n, '
+                            + 'maybe class configured badly. '
+                            + 'Try \n@from_field()\n    def field(self): pass')
 
             if field_name is None:
-                field_name=func.__name__
-            value=self.raw_data.get(field_name)
+                field_name = func.__name__
+            value = self.raw_data.get(field_name)
             if value is None:
                 if warn_if_none:
-                    logger.warning(f'{self}: {warn_if_none}. returning "{default}"')
-                value=default
+                    logger.warning(f'{self}: {warn_if_none}. '
+                                   + f'returning "{default}"')
+                value = default
             return value
         return callee
     return decorator
+
 
 def from_raw_data(func):
     """a decorator for DictWrapperClass
@@ -84,130 +96,143 @@ def from_raw_data(func):
         pass
     return callee
 
-#some TODO's
+# some TODO's
 # if ne need a path a decorator can be a class returning a class so we line
 # from_field('players').from_dict('name') etc
 #
 # or it can be like a argument or a stack of decorators
 #
 # ALSO:
-# i would like to try a laziness wrapper creating a lazy field and if needed filling added with items of some type
+# i would like to try a laziness wrapper creating a lazy field and if needed 
+# filling added with items of some type
+
 
 class GroupInfo:
-    """a class representing a position of exercise, in A1, A2, A3 B3 and others"""
-    _group_names={
-        1:'A',
-        2:'B',
-        3:'C'
+    """a class representing a position of exercise(A1, A2, A3,B3)"""
+    _group_names = {
+        1: 'A',
+        2: 'B',
+        3: 'C'
     }
-    def __init__(self, group_id:int, order:int):
-        self._group_id=group_id
-        self._order=order
+
+    def __init__(self, group_id: int, order: int):
+        self._group_id = group_id
+        self._order = order
+
     @property
     def id(self):
         return self._group_id
+
     @property
     def name(self):
-        return self._group_names.get(self.id,UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
+        return self._group_names.get(
+            self.id, UNKNOWN_GROUP_ID_NAME_REPLACEMENT)
+
     def __str__(self):
         return f'{self.name}{self._order}'
 
+
 class AdditionalInfo:
-    def __init__(self,data:dict):
-        self.raw_data=data
+    def __init__(self, data: dict):
+        self.raw_data = data
+
     @property 
     def name(self):
-        return self.raw_data.get('additional_name',{}).get('ru')
+        return self.raw_data.get('additional_name', {}).get('ru')
+
     @property
     def value(self):
         return self.raw_data.get('note')
 
-
-
-
-
-
-
-
-
 # a class for exercise info of single exercise, it has a different scructure :(
 
-class MediaLink:
-    def __init__(self, raw_data):
-        self.raw_data:dict=raw_data
+
+class MediaLink(DictWrapper):
     @property
     def exist(self):
-        return self.id!=-1
-    @property
-    def id(self):
-        return self.raw_data.get('id')
+        return self.id != -1
+
+    @from_raw_data
+    def id(self): pass
+        
     @property
     def nftv_id(self):
-        return self.raw_data.get('links',{}).get('nftv')
+        return self.raw_data.get('links', {}).get('nftv')
+
     @property
     def youtube_id(self):
-        return self.raw_data.get('links',{}).get('youtube')
+        return self.raw_data.get('links', {}).get('youtube')
+
     @property
     def nftv_player(self):
         return create_player_link(self.nftv_id)
 
+
 class Scheme:
     @abstractmethod
-    def to_stream(self)-> IO:
+    def to_stream(self) -> IO:
         pass
 
+
 class OldScheme(Scheme):
-    def __init__(self, svg_text:str):
-        self.svg_text=svg_text
+    def __init__(self, svg_text: str):
+        self.svg_text = svg_text
+
     def to_stream(self) -> IO:
         return SchemeRenderer().to_stream(self.svg_text)
 
+
 class NewScheme(Scheme):
     def __init__(self, scheme_id):
-        self.scheme_id=scheme_id
+        self.scheme_id = scheme_id
+
     def to_stream(self) -> IO:
         return NewSchemeRenderer().to_stream(self.scheme_id)
 
-    
 
-class SingleExerciseInfo:
+class SingleExerciseInfo(DictWrapper):
     """A class representing info we get for an exercise to a python object
     
     represents a data entity in nanofootball.com/exercises
     its a bit defferent from entinity of /training/exercise"""
-    _media_fields=['video_1','video_2','animation_1','animation_2']
-    _sheme_fields=['scheme_1','scheme_2']
+    _media_fields = ['video_1', 'video_2', 'animation_1', 'animation_2']
+    _sheme_fields = ['scheme_1', 'scheme_2']
 
-    def __init__(self, raw_data:dict):
-        self.raw_data=raw_data
-    @property
-    def id(self):
-        return self.raw_data.get('id')
+    @from_raw_data
+    def id(self): pass
+
     @property
     def additional_params(self) -> dict:
-        """returning exercise.additinal_params as dict, converting from list[dict]"""
-        return { entry.get('title',''):entry.get('value','') for entry in self.raw_data.get('additional_params',{})}
+        """returning exercise.additinal_params as dict,
+        converting from list[dict]"""
+        return {entry.get('title', ''): entry.get('value', '')
+                for entry in self.raw_data.get('additional_params', {})}
+
+    @from_raw_data
+    def description(self): pass
+
+    @from_raw_data
+    def title(self): pass
+        
+    @from_field('scheme_data', default=[])
+    def old_schemes(self): pass
+
     @property
-    def description(self):
-        return self.raw_data.get('description','')
+    def video_1(self) -> MediaLink:
+        return MediaLink(self.raw_data.get('video_1'))
+
     @property
-    def title(self):
-        return self.raw_data.get('title','')
+    def video_2(self) -> MediaLink:
+        return MediaLink(self.raw_data.get('video_2'))
+
     @property
-    def old_schemes(self):
-        return self.raw_data.get('scheme_data',[])
-    @property
-    def video_1(self)-> MediaLink:
-         return MediaLink(self.raw_data.get('video_1'))
-    @property
-    def video_2(self)-> MediaLink:
-         return MediaLink(self.raw_data.get('video_2'))
-    @property
-    def animation_1(self)-> MediaLink:
-         return MediaLink(self.raw_data.get('animation_1'))
+    def animation_1(self) -> MediaLink:
+        return MediaLink(self.raw_data.get('animation_1'))
+
     @property
     def animation_2(self) -> MediaLink:
-         return MediaLink(self.raw_data.get('animation_2'))
+        return MediaLink(self.raw_data.get('animation_2'))
+
     def get_media(self, field_name) -> MediaLink:
         """returns a media link to videos
         Attributes:
@@ -217,7 +242,8 @@ class SingleExerciseInfo:
             a MediaLink object or None
             """
         if field_name not in self._media_fields:
-            logger.warn(f'trying to get media field "{field_name}" from exercise_data, safe choices are {self._media_fields}')
+            logger.warn(f'trying to get media field "{field_name}" '
+            + f'from exercise_data, safe choices are {self._media_fields}')
         return getattr(self,field_name)
     @property
     def medias(self):
