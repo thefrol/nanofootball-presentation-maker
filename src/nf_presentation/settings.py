@@ -75,7 +75,20 @@ svg_replacements={
     '/ring/o22_0.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
     '/ring/o22_3.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
     '/ring/o22_4.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
-    '/ring/o22_5.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"'
+    '/ring/o22_5.svg"':'/ring/o22_0.svg" preserveAspectRatio="xMaxYMid meet"',
+    # a fix for longer gates
+    '/img/gate/2/gt09.svg"':'/img/gate/2/gt09.svg" preserveAspectRatio="xMaxYMid meet"',
+    #we need a bigger replace for all stuff
+    #maybe all preserveraspectratio to all svg
+
+    #replace for polygons that were black because of opacity bug in cairo
+    #bugfix 0.3.0dev9
+    ";fill:#0000001a\"":"\" fill='#000000' fill-opacity='0.1'", #black
+    ";fill:#ffff001a\"":"\" fill='#ffff00' fill-opacity='0.1'", #yellow one
+    #will be problems with other polygon colors
+    # in newer schemes this syntax is used style="...; fill: rgba(255, 255, 0, 0.1)"
+    # and cairo eats it
+    # maybe i need a chemeBugfix class lol instead a list of replacements, some bugfix are more complex
 
 }
 

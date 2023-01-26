@@ -3,8 +3,7 @@ from nanofoot import ExercisesService
 
 from cairosvg import svg2png
 
-exs_id=9552
-
+exs_id=2675
 render_dict={
     'video_1':True,
     'video_2':True,
