@@ -83,7 +83,7 @@ def from_field(field_name: str = None, default=None, warn_if_none: str = None):
 
 
 def from_key(key: str = None, default=None) -> property:
-    """ WILL BE REFCTORED AND DELETED OCCASIONLY
+    """ WILL BE REFACTORED AND DELETED OCCASIONLY
     
     a decorator
     additionnaly extracts a dict value from a return of a wrapped function
@@ -104,8 +104,7 @@ def from_key(key: str = None, default=None) -> property:
         @property
         def callee_property(self):
             nonlocal key, default, f
-            return_dict: dict = f.fget(self)  # if f is a property
-                                                # we use this as a property
+            return_dict: dict = f.fget(self)  # f is a property
             if not isinstance(return_dict, dict):
                 logger.error('@from_key not received a dict. return default')
                 return default
@@ -114,8 +113,7 @@ def from_key(key: str = None, default=None) -> property:
         @property
         def callee_method(*args, **kwargs):
             nonlocal key, default, f
-            return_dict: dict = f(*args, **kwargs)  # if f is a property we
-                                                    # use this as a property
+            return_dict: dict = f(*args, **kwargs)  # f is a method
             if not isinstance(return_dict, dict):
                 logger.error('@from_key not received a dict. return default')
                 return default
@@ -207,13 +205,13 @@ class MediaLink(DictWrapper):
     @from_raw_data
     def id(self): pass
 
-    @property
-    def nftv_id(self):
-        return self.raw_data.get('links', {}).get('nftv')
+    @from_key('nftv')
+    @from_field('links', default={})
+    def nftv_id(self): pass
 
-    @property
-    def youtube_id(self):
-        return self.raw_data.get('links', {}).get('youtube')
+    @from_key('youtube')
+    @from_field('links', default={})
+    def youtube_id(self): pass
 
     @property
     def nftv_player(self):

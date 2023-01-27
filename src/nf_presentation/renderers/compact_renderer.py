@@ -25,20 +25,24 @@ class ExerciseRenderOptions:
     def media_fields_to_render(self) -> list[str]:
         """returns a list of edia fields should be rendered to a pptx
         ['video_2','animation_1']"""
-        return [field for field in self._media_fields if self.raw_data.get(field)]  # if checked as True
+        return [field
+                for field in self._media_fields
+                if self.raw_data.get(field)]  # if checked as True
 
     @property
     def schemes_to_render(self):
-        return [scheme_name for scheme_name in self._scheme_priority if self.raw_data.get(scheme_name)]
+        return [scheme_name
+                for scheme_name in self._scheme_priority
+                if self.raw_data.get(scheme_name)]
 
     def check(self):
         # check if video or animation will be added to pptx
         if not any([self.raw_data.get(field) for field in self._media_fields]):
             logger.warn(
-                '(Render Options) no player links are marked to be added to pptx')
+                '(Render Options) no player links marked to be added to pptx')
         if not any(self.schemes_to_render):
             logger.warn(
-                '(Render Options) no scheme links are marked to be added to pptx')
+                '(Render Options) no scheme links marked to be added to pptx')
 
 
 def create_links_paragraph(
@@ -70,7 +74,9 @@ def create_links_paragraph(
             video_counter = video_counter+1
 
         pb.append_link(
-            link_text=f"Анимация {animation_counter}" if is_animation else f"Видео {video_counter}",
+            link_text=(f"Анимация {animation_counter}"
+                       if is_animation
+                       else f"Видео {video_counter}"),
             href=player_url)
         pb.append_text(' ')
 
@@ -179,7 +185,13 @@ def prepare_exercise_rows(
     return rows
 
 
-def create_left_table(slide: SlideBuilder, rows: list[tuple], capitalize=False, title=''):
+def create_left_table(
+        slide: SlideBuilder,
+        rows: list[tuple],
+        capitalize=False,
+        title=''):
+    """Adds a left table to the slide, the most informative part of the slide
+    used in training info slide and exercise info slide"""
     if capitalize:
         capitalized_rows = []
         for row in rows:
@@ -233,7 +245,7 @@ class CompactRenderer(BaseRenderer):
         adds a new slide to current presentation, with training overview
 
         Arguments:
-            training: 
+            training:
                 a training data to be added to slide,
                 like tasks, loads and players
             """
@@ -244,7 +256,8 @@ class CompactRenderer(BaseRenderer):
             title = training.main_objective
         else:
             logger.warn(
-                f'{training} cant get main objective, using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
+                f'{training} cant get main objective,'
+                + f' using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
             title = current_layout.DEFAULT_MAIN_OBJECTIVE
 
         create_title(slide, title=title)
@@ -260,8 +273,9 @@ class CompactRenderer(BaseRenderer):
 
         # right side
         description_text = current_layout.DEFAULT_TRAINING_DESCRIPTION
-        right_table = slide.create_table().at(
-            current_layout.SCHEME_POSITION).with_width(current_layout.RIGHT_TABLE_WIDTH)
+        right_table = slide.create_table()\
+                           .at(current_layout.SCHEME_POSITION)\
+                           .with_width(current_layout.RIGHT_TABLE_WIDTH)
         right_table.append_row(description_text)
 
     def add_exercise_slide(self,
@@ -269,15 +283,18 @@ class CompactRenderer(BaseRenderer):
                            render_options: ExerciseRenderOptions = None,
                            training: TrainingInfo = None):
         """
-        adds a new slide to current presentation, with exercise schemes and videos and othe info
+        Adds a new slide to current presentation with exercise schemes
+        and videos and info
 
         Arguments:
             exercise: SingeExerciseInfo
                 a exercise to render as a slide
             [Optional] render_options: ExerciseRenderOptions
-                a class contating options like to akk scheme1 or not, to add links or not
-                how the exercise slide would look like
-            [Optional] training: 
+                How the exercise slide would look like.
+                + use scheme_1 or scheme_2,
+                + to add links or not
+
+            [Optional] training:
                 a training data to be added to slide, like tasks of training
             """
 
@@ -294,19 +311,23 @@ class CompactRenderer(BaseRenderer):
                 title = training.main_objective
             else:
                 logger.warn(
-                    f'{training} cant get main objective, using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
+                  f'{training} cant get main objective, '
+                  + f'using default "{current_layout.DEFAULT_MAIN_OBJECTIVE}"')
                 title = current_layout.DEFAULT_MAIN_OBJECTIVE
         create_title(slide, title=title)
 
         # decription_text=HTMLRenderer().render(exercise.description)
         description_text = current_layout.DEFAULT_EXERCISE_DESCRIPTION
-        right_table = slide.create_table().at(
-            current_layout.RIGHT_TABLE_POSITION).with_width(current_layout.RIGHT_TABLE_WIDTH)
+        right_table = slide.create_table()\
+                           .at(current_layout.RIGHT_TABLE_POSITION)\
+                           .with_width(current_layout.RIGHT_TABLE_WIDTH)
         right_table.append_row(description_text)
         # mayble here add default params iter
 
         left_rows = prepare_exercise_rows(
-            exercise=exercise, training=training, render_options=render_options)
+                        exercise=exercise,
+                        training=training,
+                        render_options=render_options)
 
         create_left_table(
             slide=slide,
@@ -329,7 +350,7 @@ class CompactRenderer(BaseRenderer):
             image_stream = scheme.to_stream()
             if not image_stream:
                 logger.warn(
-                    f'cant add scheme "{scheme}" to slide, '
+                    f'Cant add scheme "{scheme}" to slide, '
                     + 'because its stream is None')
                 continue
 

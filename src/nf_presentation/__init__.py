@@ -1,4 +1,4 @@
-"""A module for creating pptx from Nanofootball server request 
+"""A module for creating pptx from Nanofootball server request
 
 use create_pptx(...) for real data
 or create_from_test_data(...)
@@ -18,7 +18,9 @@ import json
 import io
 from typing import Union
 
-from nf_presentation.renderers.compact_renderer import CompactRenderer, ExerciseRenderOptions
+from nf_presentation.renderers.compact_renderer import (
+                                            CompactRenderer,
+                                            ExerciseRenderOptions)
 from .data_classes import TrainingInfo, SingleExerciseInfo
 from . import assets
 from nf_presentation.logger import logger
@@ -100,7 +102,7 @@ def from_event(input_data: dict, output_file: Union[str, None] = None):
 
 
     Output:
-        Byte-array 
+        Byte-array
             returns a bytes of pptx document.
             This data can be written to file or be send over HTTP
     """
@@ -152,7 +154,7 @@ def from_single_exercise(
                 }
 
     Output:
-        Byte-array 
+        Byte-array
             returns a bytes of pptx document.
             This data can be written to file or sent over HTTP
     """
