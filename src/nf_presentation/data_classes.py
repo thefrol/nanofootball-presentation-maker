@@ -22,15 +22,19 @@ class DictWrapper:
 
 
 def from_field(field_name: str = None, default=None, warn_if_none: str = None):
-    """a decorator for DictWrapperClass
-    creates a property returning self.raw_data['field_name']
+    """a decorator for DictWrapper class
+    creates a property returning a dict value for the specified key(field)
+    eg. self.raw_data[field_name]
 
-    [optional]field_name: str
-        a field name to extract
-    [optional]default: any
-        a default return if cant get the field
-    [optional]warn: str
-        a warning message if attempting to return none
+    [optional] field_name: str
+        Key from a dict to extract,
+        if not specified, takes name of the wrapped function(recomended use)
+
+    [optional] default: any
+        Default return value if cant get the field or it is None
+
+    [optional] warn: str
+        Warning message, when returning default value instead of None
 
     use:
     class Exercise(DictWrapper)
@@ -76,6 +80,52 @@ def from_field(field_name: str = None, default=None, warn_if_none: str = None):
             return value
         return callee
     return decorator
+
+
+def from_key(key: str = None, default=None) -> property:
+    """ WILL BE REFCTORED AND DELETED OCCASIONLY
+    
+    a decorator
+    additionnaly extracts a dict value from a return of a wrapped function
+
+    e.g.
+    def name(self):
+        return self.raw_data.get('team_info', {}).get('name', '')
+
+    can be rewritten to
+    @from_key('name','')
+    @from_field('team_info',{})
+    def name: pass
+    """
+
+    def wrapper(f):
+        nonlocal key, default
+
+        @property
+        def callee_property(self):
+            nonlocal key, default, f
+            return_dict: dict = f.fget(self)  # if f is a property
+                                                # we use this as a property
+            if not isinstance(return_dict, dict):
+                logger.error('@from_key not received a dict. return default')
+                return default
+            return return_dict.get(key, default)
+
+        @property
+        def callee_method(*args, **kwargs):
+            nonlocal key, default, f
+            return_dict: dict = f(*args, **kwargs)  # if f is a property we
+                                                    # use this as a property
+            if not isinstance(return_dict, dict):
+                logger.error('@from_key not received a dict. return default')
+                return default
+            return return_dict.get(key, default)
+
+        if isinstance(f, property):
+            return callee_property
+        else:
+            return callee_method
+    return wrapper
 
 
 def from_raw_data(func):
@@ -415,9 +465,9 @@ class TrainingInfo(DictWrapper):
     @from_raw_data
     def keywords_2(self): pass
 
-    @property
-    def team_name(self):
-        return self.raw_data.get('team_info', {}).get('name', '')
+    @from_key('name', default='')
+    @from_field('team_info', default={})
+    def team_name(self): pass
 
     @property
     def player_count(self):
