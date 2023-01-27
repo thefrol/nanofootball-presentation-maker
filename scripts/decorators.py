@@ -21,3 +21,14 @@ class Test:
 
 
 print(Test().stuff)
+
+new_training_data = assets.get_as_json('training-data-v0-3-1')
+t_new=TrainingInfo(new_training_data)
+
+print(t_new.exercises[0].additional_params.len)
+
+for exercise in t_new.exercises:
+    print(exercise.additional_params.coach_position)
+
+print('end')
+

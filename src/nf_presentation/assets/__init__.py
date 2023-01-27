@@ -13,6 +13,8 @@ def get_rfs_logo():
 def get_as_json(name=''):
     """returns a dict of asset f'{name}.json' passed thru json.load()"""
     resource_path=f'{name}.json'
+    if not pkg_resources.is_resource(__package__,resource_path):
+        raise AttributeError(f'{resource_path} not found in resources')
     with pkg_resources.open_text(__package__, resource_path,encoding='utf8') as p:
         return json.load(p)
 

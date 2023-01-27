@@ -20,6 +20,52 @@ class DictWrapper:
     # maybe this decorators should be plkaced here, inside a class
     # @from_field, from_raw_dict
 
+#maybe we can make only lazy not with raw dict functionality
+def lazy_property(field_name=None,default=None,type_=None):
+    """a decorator
+    creates a property inside a class that initialized on call
+    should be used with some arrays and other memory heavy stuff"""
+    def wrapper(f)-> type_:
+        nonlocal field_name,default,type_
+
+        @property
+        def callee(self,*args,**kwargs) -> type_:
+            nonlocal field_name,default,type_,f
+            key_name=field_name if field_name else f.__name__
+            private_attr_name='_'+f.__name__
+            if not hasattr(self,private_attr_name): # creating a lazy attr
+                raw_dict_value=self.raw_data.get(key_name,default)
+                attr_value= type_(raw_dict_value) if type_ else raw_dict_value
+                setattr(self,private_attr_name,attr_value)
+            return getattr(self,private_attr_name)
+        return callee
+    return wrapper
+
+def additional_id(additional_id:int,default=''):
+    """wrapper returns value of a dict with
+    specified additional_id
+    implying the wrapped object is a function inside ArrayWrtapper"""
+
+
+    def wrapper(f):
+        nonlocal additional_id,default
+
+        if not isinstance(additional_id,int):
+            logger.warn(f'additional_id must be a int(wrapping {f.__name__})')
+
+        @property
+        def callee(self,*args,**kwargs):
+            nonlocal additional_id,default,f
+            for additional_dict in self.array:
+                if additional_dict.get('additional_id',-1) == additional_id:
+                    #TODO if no additional id - warn!
+                    return additional_dict.get('note',default)
+            #no found
+            logger.warn(f'additional data with id {additional_id}[{f.__name__}] no found. returnin default')
+            return default
+        return callee
+    return wrapper
+
 
 def from_field(field_name: str = None, default=None, warn_if_none: str = None):
     """a decorator for DictWrapper class
@@ -44,7 +90,7 @@ def from_field(field_name: str = None, default=None, warn_if_none: str = None):
 
     ex=Exercise(data)
     print(ex.id)  # returns data['id'] / ex.raw_data['id']"""
-    def decorator(func):
+    def decorator(func) -> property:
         nonlocal field_name, default
 
         @property
@@ -335,9 +381,67 @@ class SingleExerciseInfo(DictWrapper):
         return getattr(self, name)
 
 
+class ArrayWrapper:
+    """a class wrapping an array for easy acces to members """
+    def __init__(self,array):
+        self.array=array
+    
+    @property
+    def len(self):
+        return len(self.array)
+
+
+
+class AdditinonalExerciseInfo(ArrayWrapper):
+    """A class for working with additional info inside exercise"""
+    @additional_id(1)
+    def series(self): pass
+
+    @additional_id(2)
+    def duration(self): pass
+
+    @additional_id(3)
+    def groups_count(self):pass
+
+    @additional_id(4) # Организаация (Пространство)
+    def space(self): pass
+
+    @additional_id(5) # Зона, часть поля
+    def zone(self): pass
+
+    @additional_id(6) # Структура игры в атаке
+    def attack_struct(self): pass
+
+    @additional_id(7) # Структура игры в обороне
+    def defence_struct(self): pass
+
+    @additional_id(8) # Повторение / паузы
+    def repetition_and_pauses(self): pass
+
+    @additional_id(9)
+    def pulse(self): pass
+
+    @additional_id(10) # ввод мяча
+    def ball_enter(self): pass
+
+    @additional_id(11)
+    def touches(self): pass
+
+    @additional_id(12)
+    def neutrals(self): pass
+
+    @additional_id(13)
+    def coach_position(self): pass
+
+
+
+
 class TrainingExerciseInfo(SingleExerciseInfo):
     """A class representing info we get for an exercise to a python object
     representing a data entity in nanofootball.com/training/exercise"""
+
+    @lazy_property('additional',default={},type_=AdditinonalExerciseInfo)
+    def additional_params(self) -> AdditinonalExerciseInfo: pass
 
     @property
     def title(self):
