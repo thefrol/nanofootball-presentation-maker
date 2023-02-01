@@ -33,9 +33,9 @@
     "notes": null,
     "field_size": "1/3",
     "load_type": "Высокая",
-    "goal": "",
-    "objective_1": "",
-    "objective_2": "",
+    "goal": "Цель",
+    "objective_1": "Задача 111",
+    "objective_2": "Задача 2222",
     "video_href": "https://www.youtube.com/",
     "exercises_info": [
         {
@@ -230,7 +230,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 1,
-                    "note": null
+                    "note": "Серии 1"
                 },
                 {
                     "id": 346,
@@ -240,7 +240,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 2,
-                    "note": null
+                    "note": "Минуты 2"
                 },
                 {
                     "id": 347,
@@ -250,7 +250,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 3,
-                    "note": null
+                    "note": "Игроков"
                 },
                 {
                     "id": 348,
@@ -260,7 +260,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 4,
-                    "note": null
+                    "note": "Пространство"
                 },
                 {
                     "id": 349,
@@ -340,7 +340,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 12,
-                    "note": null
+                    "note": "Нейтральных 12"
                 },
                 {
                     "id": 357,
@@ -350,7 +350,7 @@
                     },
                     "training_exercise_id": 187,
                     "additional_id": 13,
-                    "note": null
+                    "note": "располож"
                 }
             ],
             "exercise_data": {

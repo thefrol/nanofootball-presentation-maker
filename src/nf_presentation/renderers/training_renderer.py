@@ -1,5 +1,5 @@
 from nf_presentation.renderers.base_renderer import BaseRenderer
-from nf_presentation.data_classes import SingleExerciseInfo, TrainingInfo
+from nf_presentation.data_classes import SingleExerciseInfo, TrainingInfo,TrainingExerciseInfo,AdditinonalExerciseInfo
 from nf_presentation.builders import ParagraphBuilder, SlideBuilder
 
 from nf_presentation._settings import compact_layout as current_layout
@@ -134,7 +134,7 @@ def prepare_training_rows(training: TrainingInfo) -> list[tuple]:
 
 
 def prepare_exercise_rows(
-        exercise: SingleExerciseInfo,
+        exercise: TrainingExerciseInfo,
         training: TrainingInfo,
         render_options: SingleExerciseInfo) -> list[tuple]:
     """returns a proto-array for creating left table,
@@ -143,6 +143,7 @@ def prepare_exercise_rows(
     
     #getting data
     duration = getattr(exercise, 'duration', '')
+    additional_params:AdditinonalExerciseInfo=exercise.additional_params
 
 
     # titles
@@ -169,12 +170,12 @@ def prepare_exercise_rows(
     # кстати, вот это откуда брать из тренировки или из упражнения?
     rows.append(('КОЛИЧЕСТВО ИГРОКОВ', ''))
     rows.append(('ОРГАНИЗАЦИЯ', ''))
-    rows.append(('ПРОСТРАНСТВО', ''))
+    rows.append(('ПРОСТРАНСТВО', additional_params.space))
     rows.append(('ДОЗИРОВКА', ''))
-    rows.append(('ПУЛЬС', ''))
-    rows.append(('КАСАНИЕ МЯЧА', ''))
-    rows.append(('НЕЙТРАЛЬНЫЕ', ''))
-    rows.append(('РАСПОЛОЖЕНИЕ ТРЕНЕРА', ''))
+    rows.append(('ПУЛЬС', additional_params.pulse))
+    rows.append(('ВВОД МЯЧА', additional_params.ball_enter))
+    rows.append(('НЕЙТРАЛЬНЫЕ', additional_params.neutrals))
+    rows.append(('РАСПОЛОЖЕНИЕ ТРЕНЕРА', additional_params.coach_position))
     rows.append(('ВЫЯВЛЕНИЕ ПОБЕДИТЕЛЯ', ''))
 
     rows.append(())  # empty row
@@ -221,7 +222,7 @@ def create_title(slide: SlideBuilder, title: str):
     return title
 
 
-class CompactRenderer(BaseRenderer):
+class TrainingRenderer(BaseRenderer):
     def __init__(self):
         super().__init__(ratio=base_settings.PRESENTATION_RATIO)
         # self.render_options : ExerciseRenderOptions = render_options

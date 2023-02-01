@@ -21,6 +21,8 @@ from typing import Union
 from nf_presentation.renderers.compact_renderer import (
                                             CompactRenderer,
                                             ExerciseRenderOptions)
+
+from nf_presentation.renderers.training_renderer import TrainingRenderer
 from .data_classes import TrainingInfo, SingleExerciseInfo
 from . import assets
 from nf_presentation.logger import logger
@@ -78,7 +80,7 @@ def from_training(input_data: dict, output_file: Union[str, None] = None):
             input_data = json.load(f)
 
     training = TrainingInfo(raw_data=input_data)
-    with CompactRenderer() as renderer:
+    with TrainingRenderer() as renderer:
         renderer.add_title_slide(
             name=training.trainer_name,
             theme=training.main_objective)
@@ -118,7 +120,7 @@ def from_event(input_data: dict, output_file: Union[str, None] = None):
 
     training_data = event_data.get('training')
     training = TrainingInfo(raw_data=training_data)
-    with CompactRenderer() as renderer:
+    with TrainingRenderer() as renderer:
         renderer.add_title_slide(
             name=training.trainer_name,
             theme=training.main_objective)
